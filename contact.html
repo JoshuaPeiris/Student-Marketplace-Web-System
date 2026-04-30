@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact & About — campusMarket</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.about-layout{max-width:960px;margin:28px auto;padding:0 16px}
+.about-hero{background:linear-gradient(135deg,var(--primary),#1565c0);color:#fff;border-radius:16px;padding:36px 32px;text-align:center;margin-bottom:28px}
+.about-hero h1{font-family:'Poppins',sans-serif;font-size:28px;font-weight:700;margin-bottom:10px}
+.about-hero p{font-size:14px;opacity:.85;max-width:500px;margin:0 auto}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.info-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:22px;text-align:center}
+.info-card .ico{font-size:36px;margin-bottom:10px;display:block}
+.info-card h3{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px}
+.info-card p{font-size:12px;color:var(--text-muted);line-height:1.7}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.section-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px}
+.section-card h2{font-family:'Poppins',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px;color:var(--primary);display:flex;align-items:center;gap:8px}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.team-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.team-avatar{width:56px;height:56px;border-radius:50%;background:#e8eaf6;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--primary)}
+.team-card h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.team-card .role{font-size:11px;color:var(--primary);font-weight:600;background:#e8eaf6;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:4px}
+.team-card .year{font-size:11px;color:var(--text-muted)}
+.faq-item{border-bottom:1px solid var(--border);padding:14px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:var(--primary)}
+.faq-a{font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.7;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-toggle{transform:rotate(180deg)}
+.faq-toggle{transition:transform .2s;font-size:12px}
+.success-banner{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:14px;font-size:13px;color:var(--green);display:none;margin-bottom:12px}
+@media(max-width:700px){.cards-grid,.two-col,.team-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div id="header-root"></div>
+
+<div class="page-title-bar">
+  <div style="max-width:960px;margin:0 auto;width:100%">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>About & Contact</span></div>
+    <h1>About campusMarket</h1>
+  </div>
+</div>
+
+<div class="about-layout">
+  <div class="about-hero">
+    <h1>🎓 Built by Students, for Students</h1>
+    <p>campusMarket is the official student marketplace for the HNDIT 2nd Semester group project. Our mission is to make campus commerce simple, safe, and accessible for every student.</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="info-card"><span class="ico">🛡️</span><h3>Safe & Trusted</h3><p>Campus-only platform. All users are verified HNDIT students. Meet safely on campus.</p></div>
+    <div class="info-card"><span class="ico">💸</span><h3>Completely Free</h3><p>No listing fees, no commissions. Post unlimited ads for free throughout your studies.</p></div>
+    <div class="info-card"><span class="ico">⚡</span><h3>Fast & Simple</h3><p>Post an ad in under 2 minutes. Find what you need and connect with sellers instantly.</p></div>
+  </div>
+
+  <div class="two-col">
+    <div class="section-card">
+      <h2>📬 Contact Us</h2>
+      <div class="success-banner" id="contact-success">✅ Message sent! We'll get back to you within 24 hours.</div>
+      <div class="form-group"><label>Your Name <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-control" id="c-name" placeholder="Kamal Perera"/></div>
+      <div class="form-group"><label>Email <span style="color:var(--red)">*</span></label>
+        <input type="email" class="form-control" id="c-email" placeholder="yourname@student.ac.lk"/></div>
+      <div class="form-group"><label>Subject</label>
+        <select class="form-control" id="c-subj">
+          <option>General Inquiry</option><option>Report a User</option>
+          <option>Technical Issue</option><option>Listing Problem</option><option>Feedback / Suggestion</option>
+        </select></div>
+      <div class="form-group"><label>Message <span style="color:var(--red)">*</span></label>
+        <textarea class="form-control" id="c-msg" rows="4" placeholder="Write your message here..."></textarea></div>
+      <button class="btn btn-primary btn-full" onclick="sendContact()">Send Message 📨</button>
+    </div>
+
+    <div>
+      <div class="section-card" style="margin-bottom:16px">
+        <h2>📍 Find Us</h2>
+        <div style="font-size:13px;color:var(--text-muted);line-height:2">
+          🏫 <strong>HNDIT Department</strong><br>
+          📌 Block A, Ground Floor<br>
+          🕐 Mon–Fri: 8:00 AM – 5:00 PM<br>
+          📧 hndit.market@student.ac.lk<br>
+          📞 Ext. 2201 (IT Department)
+        </div>
+      </div>
+      <div class="section-card">
+        <h2>📢 Report Abuse</h2>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:12px">See something suspicious? Report it and we'll investigate within 24 hours.</p>
+        <a href="mailto:report@campusmarket.lk" class="btn btn-outline btn-full">🚩 Report a Listing</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card" style="margin-bottom:28px">
+    <h2>👨‍💻 Meet the Team</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px">campusMarket was built by a group of passionate HNDIT 2nd Semester students as their group project.</p>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-avatar">AK</div><h4>Ashen Kumara</h4><div class="role">Project Lead</div><div class="year">HNDIT 2nd Year</div></div>
+      <div class="team-card"><div class="team-avatar">NP</div><h4>Nimasha Perera</h4><div class="role">UI/UX Designer</div><div class="year">HNDIT 2nd Year</div></div>
+      <div class="team-card"><div class="team-avatar">KS</div><h4>Kasun Silva</h4><div class="role">Frontend Dev</div><div class="year">HNDIT 2nd Year</div></div>
+      <div class="team-card"><div class="team-avatar">HD</div><h4>Hiruni Dias</h4><div class="role">Backend Dev</div><div class="year">HNDIT 2nd Year</div></div>
+      <div class="team-card"><div class="team-avatar">TR</div><h4>Tharindu Raj.</h4><div class="role">Database</div><div class="year">HNDIT 2nd Year</div></div>
+      <div class="team-card"><div class="team-avatar">CF</div><h4>Chathu Fernando</h4><div class="role">QA & Testing</div><div class="year">HNDIT 2nd Year</div></div>
+    </div>
+  </div>
+
+  <div class="section-card" style="margin-bottom:28px">
+    <h2>❓ Frequently Asked Questions</h2>
+    <div id="faq-list">
+      ${[
+        {q:'Who can use campusMarket?', a:'campusMarket is exclusively for HNDIT students. You must register with your student email to post or contact sellers.'},
+        {q:'Is it free to post an ad?', a:'Yes! Posting ads on campusMarket is completely free for all HNDIT students. There are no charges whatsoever.'},
+        {q:'How do I stay safe when buying/selling?', a:'Always meet in public campus areas like the library, canteen, or Block A/B corridors. Inspect items before paying. Bring a friend for expensive items and never share your home address.'},
+        {q:'Can I sell food items?', a:'Yes! There is a Food & Snacks category. Make sure your food is properly packaged and labeled. Follow campus food safety guidelines.'},
+        {q:'What if a seller is unresponsive or scamming?', a:'Use the Report button on any listing or contact our team directly. We will investigate and take action within 24 hours.'},
+        {q:'How do I delete my listing?', a:'Go to My Profile → My Listings and click the delete icon on your listing. Sold items can be marked as sold instead.'},
+      ].map((f,i)=>`<div class="faq-item" id="faq${i}">
+        <div class="faq-q" onclick="toggleFaq(${i})">${f.q}<span class="faq-toggle">▼</span></div>
+        <div class="faq-a">${f.a}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+<script src="components.js"></script>
+<script>
+document.getElementById('topbar-root').innerHTML = renderTopbar();
+document.getElementById('header-root').innerHTML = renderHeader();
+document.getElementById('footer-root').innerHTML = renderFooter();
+
+function toggleFaq(i) {
+  const item = document.getElementById('faq'+i);
+  item.classList.toggle('open');
+}
+function sendContact() {
+  const name = document.getElementById('c-name').value;
+  const email = document.getElementById('c-email').value;
+  const msg = document.getElementById('c-msg').value;
+  if (!name||!email||!msg) { alert('Please fill in all required fields.'); return; }
+  document.getElementById('contact-success').style.display='block';
+  document.getElementById('c-name').value='';
+  document.getElementById('c-email').value='';
+  document.getElementById('c-msg').value='';
+}
+</script>
+</body>
+</html>

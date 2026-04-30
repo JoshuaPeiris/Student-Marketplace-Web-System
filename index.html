@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>campusMarket — HNDIT Student Marketplace</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.hero{background:linear-gradient(135deg,#1a237e 0%,#283593 50%,#1565c0 100%);color:#fff;padding:32px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero::after{content:'';position:absolute;right:80px;bottom:-80px;width:200px;height:200px;border-radius:50%;background:rgba(255,213,79,.06)}
+.hero-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.hero-text h1{font-family:'Poppins',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px;line-height:1.2}
+.hero-text h1 span{color:var(--accent)}
+.hero-text p{font-size:14px;opacity:.85;margin-bottom:20px;max-width:460px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:24px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.15)}
+.stat-item{text-align:center}
+.stat-num{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:11px;opacity:.75;margin-top:2px}
+.hero-art{font-size:90px;opacity:.3;position:relative;z-index:1}
+.main-layout{max-width:1140px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:200px 1fr;gap:18px}
+.listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.featured-strip{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13px;color:#5d4037}
+.featured-strip strong{color:#e65100}
+.featured-strip a{color:var(--primary);font-weight:700;margin-left:auto;white-space:nowrap}
+.promo-strip{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green)}
+.promo-strip a{color:var(--green);font-weight:700;margin-left:auto}
+.quick-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;margin:18px 0}
+.qcat{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.qcat:hover{background:#e8eaf6;border-color:var(--primary);transform:translateY(-2px)}
+.qcat .ico{font-size:28px;display:block;margin-bottom:6px}
+.qcat .lbl{font-size:11px;font-weight:700;color:var(--text-muted)}
+.qcat .cnt{font-size:10px;color:var(--primary);font-weight:700}
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.pagination a{padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-weight:600;transition:all .15s}
+.pagination a:hover{border-color:var(--primary);color:var(--primary)}
+.pagination a.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.notice-bar{background:var(--primary);color:#fff;text-align:center;padding:8px;font-size:12px}
+.notice-bar a{color:var(--accent);font-weight:700}
+@media(max-width:700px){.main-layout{grid-template-columns:1fr}.sidebar-wrap{display:none}.hero-art{display:none}}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div id="header-root"></div>
+
+<div class="notice-bar">🎉 Welcome! Post your first listing for <strong>FREE</strong>. <a href="post-ad.html">Post Now →</a></div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>Your Campus.<br><span>Your Marketplace.</span></h1>
+      <p>Buy, sell, swap and share within the HNDIT student community. Safe, easy, and totally free.</p>
+      <div class="hero-ctas">
+        <a href="listings.html" class="btn btn-accent">Browse Listings</a>
+        <a href="post-ad.html" class="btn btn-orange">+ Post Free Ad</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">342</div><div class="stat-lbl">Active Listings</div></div>
+        <div class="stat-item"><div class="stat-num">89</div><div class="stat-lbl">Students Online</div></div>
+        <div class="stat-item"><div class="stat-num">1.2k</div><div class="stat-lbl">Trades Done</div></div>
+        <div class="stat-item"><div class="stat-num">100%</div><div class="stat-lbl">Campus-Only</div></div>
+      </div>
+    </div>
+    <div class="hero-art">🎓</div>
+  </div>
+</div>
+
+<div style="max-width:1140px;margin:18px auto;padding:0 16px">
+  <div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Quick Categories</div>
+  <div class="quick-cats">
+    <div class="qcat" onclick="window.location='listings.html?cat=textbooks'"><span class="ico">📚</span><div class="lbl">Textbooks</div><div class="cnt">84 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=notes'"><span class="ico">📝</span><div class="lbl">Notes</div><div class="cnt">57 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=electronics'"><span class="ico">💻</span><div class="lbl">Electronics</div><div class="cnt">41 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=stationery'"><span class="ico">✏️</span><div class="lbl">Stationery</div><div class="cnt">36 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=uniforms'"><span class="ico">👕</span><div class="lbl">Uniforms</div><div class="cnt">22 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=projects'"><span class="ico">🔧</span><div class="lbl">Projects</div><div class="cnt">18 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=services'"><span class="ico">🛠️</span><div class="lbl">Services</div><div class="cnt">15 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=free'"><span class="ico">🎁</span><div class="lbl">Free Stuff</div><div class="cnt">8 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=lostfound'"><span class="ico">🔍</span><div class="lbl">Lost &amp; Found</div><div class="cnt">9 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=food'"><span class="ico">🍱</span><div class="lbl">Food</div><div class="cnt">12 ads</div></div>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar-wrap">
+    <div class="sidebar-block">
+      <h4>Categories</h4>
+      <div id="sidebar-cats"></div>
+    </div>
+    <div class="sidebar-block">
+      <h4>Filter Listings</h4>
+      <div class="filter-row"><label>Price Range (Rs.)</label>
+        <input type="number" placeholder="Min" id="f-min" style="margin-bottom:6px"/>
+        <input type="number" placeholder="Max" id="f-max"/>
+      </div>
+      <div class="filter-row"><label>Condition</label>
+        <select id="f-cond"><option value="">Any</option><option>Brand New</option><option>Like New</option><option>Good</option><option>Used</option></select>
+      </div>
+      <div class="filter-row"><label>Seller Year</label>
+        <select id="f-year"><option value="">Any Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option></select>
+      </div>
+      <div class="filter-row"><label>Type</label>
+        <select id="f-type"><option value="">All Types</option><option>For Sale</option><option>Swap</option><option>Free</option><option>Wanted</option></select>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="applyFilter()">Apply Filters</button>
+      <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="clearFilter()">Clear</button>
+    </div>
+    <div class="sidebar-block">
+      <h4>My Account</h4>
+      <div id="sidebar-account"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="featured-strip">
+      <span>⭐</span>
+      <span><strong>Featured:</strong> 2nd Year HNDIT Full Note Bundle — discounted for Batch 2025!</span>
+      <a href="listing-detail.html?id=3">View →</a>
+    </div>
+
+    <div class="section-hd"><h2>🕐 Latest Listings</h2><a href="listings.html">See all →</a></div>
+    <div class="listings-grid" id="latest-grid"></div>
+
+    <div class="promo-strip">
+      🛠️ <span><strong>Need project help?</strong> 3rd year students offering web dev, circuit design &amp; poster services.</span>
+      <a href="listings.html?cat=services">Browse Services →</a>
+    </div>
+
+    <div class="section-hd" style="margin-top:8px"><h2>📚 Popular Textbooks</h2><a href="listings.html?cat=textbooks">See all →</a></div>
+    <div class="listings-grid" id="books-grid"></div>
+
+    <div class="pagination" style="margin-top:20px">
+      <a href="#" class="active">1</a><a href="#">2</a><a href="#">3</a><a href="#">...</a><a href="#">12</a>
+    </div>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+<script src="components.js"></script>
+<script>
+document.getElementById('topbar-root').innerHTML = renderTopbar();
+document.getElementById('header-root').innerHTML = renderHeader('All');
+document.getElementById('footer-root').innerHTML = renderFooter();
+
+const CATS = [
+  {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
+  {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
+  {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
+];
+document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
+  `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
+    <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
+
+const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
+document.getElementById('sidebar-account').innerHTML = user
+  ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
+     <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
+     <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
+  : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
+     <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
+     <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
+
+document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
+document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
+
+function applyFilter() {
+  const min = document.getElementById('f-min').value;
+  const q = min ? `?min=${min}&max=${document.getElementById('f-max').value}&cond=${document.getElementById('f-cond').value}` : '';
+  window.location.href = 'listings.html' + q;
+}
+function clearFilter() {
+  ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
+  ['f-cond','f-year','f-type'].forEach(id => document.getElementById(id).value='');
+}
+</script>
+</body>
+</html>

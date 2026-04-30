@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Register — campusMarket</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
+.auth-page{flex:1;display:flex;align-items:center;justify-content:center;padding:30px 16px}
+.auth-card{background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.2);width:100%;max-width:520px;overflow:hidden}
+.auth-header{background:var(--primary);padding:22px 28px;color:#fff}
+.auth-header .logo{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:#fff}
+.auth-header .logo span{color:var(--accent)}
+.auth-header p{font-size:12px;opacity:.8;margin-top:4px}
+.auth-body{padding:24px 28px}
+.auth-body h2{font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;margin-bottom:4px}
+.sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.step-bar{display:flex;gap:0;margin-bottom:22px}
+.step{flex:1;height:4px;background:var(--border);border-radius:2px;position:relative}
+.step.done{background:var(--primary)}
+.step.active{background:var(--accent)}
+.step-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:16px;margin-top:6px}
+.step-labels span.active-lbl{color:var(--primary);font-weight:700}
+.terms-box{background:#f5f5f5;border-radius:8px;padding:14px;font-size:12px;color:var(--text-muted);max-height:100px;overflow-y:auto;margin-bottom:12px;line-height:1.6}
+.err{background:#fce4ec;color:#c62828;font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:14px;border:1px solid #f48fb1;display:none}
+.auth-footer{text-align:center;font-size:13px;color:var(--text-muted);margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.auth-footer a{color:var(--primary);font-weight:700}
+</style>
+</head>
+<body>
+<div style="background:var(--primary-dark);padding:10px 24px;display:flex;align-items:center;justify-content:space-between">
+  <a href="index.html" class="logo" style="font-family:Poppins,sans-serif;font-size:18px;font-weight:700;color:#fff">campus<span style="color:var(--accent)">Market</span></a>
+  <a href="index.html" style="color:rgba(255,255,255,.7);font-size:12px">← Back to Marketplace</a>
+</div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">campus<span>Market</span></div>
+      <p>🎓 HNDIT 2nd Semester — Create your student account</p>
+    </div>
+    <div class="auth-body">
+      <h2>Create Account</h2>
+      <p class="sub">Join the campus marketplace today — it's free!</p>
+
+      <div class="step-bar">
+        <div class="step done" id="s1"></div>
+        <div class="step active" id="s2" style="margin-left:4px"></div>
+        <div class="step" id="s3" style="margin-left:4px"></div>
+      </div>
+      <div class="step-labels">
+        <span class="active-lbl">Personal Info</span>
+        <span id="lbl2">Campus Details</span>
+        <span id="lbl3">Security</span>
+      </div>
+
+      <div class="err" id="reg-err"></div>
+
+      <!-- Step 1 -->
+      <div id="step1">
+        <div class="row2">
+          <div class="form-group"><label>First Name <span>*</span></label>
+            <input type="text" class="form-control" id="fname" placeholder="Kamal"/></div>
+          <div class="form-group"><label>Last Name <span>*</span></label>
+            <input type="text" class="form-control" id="lname" placeholder="Perera"/></div>
+        </div>
+        <div class="form-group"><label>Student Email <span>*</span></label>
+          <input type="email" class="form-control" id="email" placeholder="yourname@student.ac.lk"/></div>
+        <div class="form-group"><label>Phone Number</label>
+          <input type="tel" class="form-control" id="phone" placeholder="07X XXX XXXX"/></div>
+        <button class="btn btn-primary btn-full" style="padding:11px" onclick="nextStep(2)">Continue →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step2" style="display:none">
+        <div class="row2">
+          <div class="form-group"><label>Index Number <span>*</span></label>
+            <input type="text" class="form-control" id="index" placeholder="HND22501"/></div>
+          <div class="form-group"><label>Academic Year <span>*</span></label>
+            <select class="form-control" id="year">
+              <option value="">Select year</option>
+              <option>1st Year</option><option selected>2nd Year</option><option>3rd Year</option>
+            </select></div>
+        </div>
+        <div class="form-group"><label>Campus Block / Zone</label>
+          <select class="form-control" id="zone">
+            <option value="">Select zone</option>
+            <option>Block A</option><option>Block B</option><option>Library Area</option>
+            <option>Canteen Area</option><option>Cafeteria</option>
+          </select></div>
+        <div class="form-group"><label>Bio (optional)</label>
+          <textarea class="form-control" id="bio" rows="2" placeholder="Tell fellow students a bit about yourself..."></textarea></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" onclick="nextStep(1)">← Back</button>
+          <button class="btn btn-primary" style="flex:1;padding:11px" onclick="nextStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step3" style="display:none">
+        <div class="form-group"><label>Password <span>*</span></label>
+          <input type="password" class="form-control" id="pass1" placeholder="Minimum 8 characters"
+            oninput="checkStrength(this.value)"/></div>
+        <div id="strength-bar" style="height:4px;background:#eee;border-radius:2px;margin-top:-10px;margin-bottom:14px;overflow:hidden">
+          <div id="strength-fill" style="height:100%;width:0%;transition:width .3s,background .3s;border-radius:2px"></div></div>
+        <div class="form-group"><label>Confirm Password <span>*</span></label>
+          <input type="password" class="form-control" id="pass2" placeholder="Re-enter password"/></div>
+
+        <div class="terms-box">
+          By registering, you agree to the campusMarket Terms of Use. This platform is strictly for HNDIT students. You must not post misleading listings, spam, or inappropriate content. All trades are between students — the platform is not responsible for transactions. Please follow campus safety guidelines when meeting to exchange items.
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <input type="checkbox" id="terms" style="width:16px;height:16px"/>
+          <label for="terms" style="font-size:12px;cursor:pointer;font-weight:400">I agree to the Terms &amp; Campus Guidelines</label>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" onclick="nextStep(2)">← Back</button>
+          <button class="btn btn-primary" style="flex:1;padding:11px" onclick="doRegister()">Create Account 🎉</button>
+        </div>
+      </div>
+
+      <div class="auth-footer">Already have an account? <a href="login.html">Login here</a></div>
+    </div>
+  </div>
+</div>
+<script src="components.js"></script>
+<script>
+let currentStep = 1;
+function nextStep(n) {
+  const err = document.getElementById('reg-err');
+  err.style.display = 'none';
+  if (n === 2) {
+    if (!document.getElementById('fname').value || !document.getElementById('lname').value || !document.getElementById('email').value) {
+      err.textContent = '⚠️ Please fill in all required fields.'; err.style.display = 'block'; return;
+    }
+  }
+  if (n === 3) {
+    if (!document.getElementById('index').value || !document.getElementById('year').value) {
+      err.textContent = '⚠️ Please fill in your index number and year.'; err.style.display = 'block'; return;
+    }
+  }
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('step'+i).style.display = i === n ? 'block' : 'none';
+    const s = document.getElementById('s'+i);
+    s.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+  }
+  currentStep = n;
+}
+function checkStrength(v) {
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const colors = ['#e53935','#ff7043','#fdd835','#43a047'];
+  const fill = document.getElementById('strength-fill');
+  fill.style.width = (score * 25) + '%';
+  fill.style.background = colors[score-1] || '#eee';
+}
+function doRegister() {
+  const err = document.getElementById('reg-err');
+  err.style.display = 'none';
+  const p1 = document.getElementById('pass1').value;
+  const p2 = document.getElementById('pass2').value;
+  const terms = document.getElementById('terms').checked;
+  if (!p1 || p1.length < 8) { err.textContent = '⚠️ Password must be at least 8 characters.'; err.style.display = 'block'; return; }
+  if (p1 !== p2) { err.textContent = '⚠️ Passwords do not match.'; err.style.display = 'block'; return; }
+  if (!terms) { err.textContent = '⚠️ Please agree to the terms.'; err.style.display = 'block'; return; }
+  const user = {
+    name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
+    email: document.getElementById('email').value,
+    year: document.getElementById('year').value,
+    index: document.getElementById('index').value,
+    zone: document.getElementById('zone').value,
+    joined: '2025'
+  };
+  localStorage.setItem('cm_user', JSON.stringify(user));
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Browse Listings — campusMarket</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.layout{max-width:1140px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:210px 1fr;gap:18px}
+.listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+.sort-bar{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.sort-bar label{font-size:12px;font-weight:700;color:var(--text-muted)}
+.sort-bar select{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;cursor:pointer;outline:none}
+.sort-bar .results{margin-left:auto;font-size:12px;color:var(--text-muted)}
+.view-toggle{display:flex;gap:4px}
+.view-toggle button{padding:5px 10px;border:1px solid var(--border);background:#fff;border-radius:5px;cursor:pointer;font-size:13px;transition:all .15s}
+.view-toggle button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.list-view .listing-card{display:flex;flex-direction:row;height:100px}
+.list-view .listing-thumb{width:100px;min-width:100px;height:100%}
+.list-view .listing-body{display:flex;align-items:center;gap:16px;flex:1;padding:12px}
+.list-view .listing-title{flex:1;-webkit-line-clamp:1}
+.list-view .listing-price{white-space:nowrap}
+.active-cat{background:#e8eaf6!important;color:var(--primary)!important;font-weight:700}
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:20px}
+.pagination a{padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-weight:600;transition:all .15s}
+.pagination a:hover,.pagination a.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.sidebar-wrap{display:none}}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div id="header-root"></div>
+
+<div class="page-title-bar">
+  <div style="max-width:1140px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span id="bc-cat">All Listings</span></div>
+      <h1 id="page-title">Browse All Listings</h1>
+    </div>
+    <a href="post-ad.html" class="btn btn-accent">+ Post Free Ad</a>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar-wrap">
+    <div class="sidebar-block">
+      <h4>Categories</h4>
+      <div id="cat-list"></div>
+    </div>
+    <div class="sidebar-block">
+      <h4>Filter</h4>
+      <div class="filter-row"><label>Min Price (Rs.)</label>
+        <input type="number" class="form-control" id="f-min" placeholder="0"/></div>
+      <div class="filter-row"><label>Max Price (Rs.)</label>
+        <input type="number" class="form-control" id="f-max" placeholder="Any"/></div>
+      <div class="filter-row"><label>Condition</label>
+        <select class="form-control" id="f-cond"><option value="">Any</option>
+          <option>Brand New</option><option>Like New</option><option>Good</option><option>Used</option></select></div>
+      <div class="filter-row"><label>Listing Type</label>
+        <select class="form-control" id="f-type"><option value="">All</option>
+          <option>For Sale</option><option>Swap</option><option>Free</option><option>Wanted</option></select></div>
+      <div class="filter-row"><label>Seller Year</label>
+        <select class="form-control" id="f-year"><option value="">Any</option>
+          <option>1st Year</option><option>2nd Year</option><option>3rd Year</option></select></div>
+      <div class="filter-row"><label>Campus Zone</label>
+        <select class="form-control" id="f-zone"><option value="">All Zones</option>
+          <option>Block A</option><option>Block B</option><option>Library</option>
+          <option>Canteen</option><option>Cafeteria</option></select></div>
+      <button class="btn btn-primary btn-full" onclick="applyFilter()" style="margin-top:6px">Apply Filters</button>
+      <button class="btn btn-outline btn-full" onclick="clearFilters()" style="margin-top:8px">Clear All</button>
+    </div>
+    <div class="sidebar-block">
+      <h4>Quick Post</h4>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Have something to sell or swap?</p>
+      <a href="post-ad.html" class="btn btn-orange btn-full">+ Post Ad Free</a>
+    </div>
+  </div>
+
+  <div>
+    <div class="sort-bar">
+      <label>Sort:</label>
+      <select id="sort-sel" onchange="renderGrid()">
+        <option value="latest">Latest First</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+      <label style="margin-left:8px">Show:</label>
+      <select id="show-sel" onchange="renderGrid()">
+        <option value="12">12 per page</option><option value="24">24</option><option value="all">All</option>
+      </select>
+      <span class="results" id="results-count"></span>
+      <div class="view-toggle">
+        <button id="vgrid" class="active" onclick="setView('grid')">⊞</button>
+        <button id="vlist" onclick="setView('list')">☰</button>
+      </div>
+    </div>
+
+    <div id="listing-grid" class="listings-grid"></div>
+    <div id="no-results" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">
+      <div style="font-size:48px;margin-bottom:12px">🔍</div>
+      <h3>No listings found</h3>
+      <p style="font-size:13px;margin-top:6px">Try adjusting your filters or <a href="post-ad.html">post what you need</a>.</p>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+<script src="components.js"></script>
+<script>
+document.getElementById('topbar-root').innerHTML = renderTopbar();
+document.getElementById('header-root').innerHTML = renderHeader();
+document.getElementById('footer-root').innerHTML = renderFooter();
+
+const CATS_META = [
+  {key:'',ico:'🏠',lbl:'All Categories',cnt:302},
+  {key:'textbooks',ico:'📚',lbl:'Textbooks',cnt:84},
+  {key:'notes',ico:'📝',lbl:'Notes & Past Papers',cnt:57},
+  {key:'electronics',ico:'💻',lbl:'Electronics',cnt:41},
+  {key:'stationery',ico:'✏️',lbl:'Stationery',cnt:36},
+  {key:'uniforms',ico:'👕',lbl:'Uniforms',cnt:22},
+  {key:'projects',ico:'🔧',lbl:'Project Items',cnt:18},
+  {key:'services',ico:'🛠️',lbl:'Services',cnt:15},
+  {key:'food',ico:'🍱',lbl:'Food & Snacks',cnt:12},
+  {key:'lostfound',ico:'🔍',lbl:'Lost & Found',cnt:9},
+  {key:'free',ico:'🎁',lbl:'Free Stuff',cnt:8},
+];
+
+const params = new URLSearchParams(location.search);
+let activeCat = params.get('cat') || '';
+let searchQ = params.get('q') || '';
+
+document.getElementById('page-title').textContent = activeCat
+  ? CATS_META.find(c=>c.key===activeCat)?.lbl || 'Listings'
+  : searchQ ? `Search: "${searchQ}"` : 'Browse All Listings';
+document.getElementById('bc-cat').textContent = activeCat || searchQ || 'All Listings';
+
+document.getElementById('cat-list').innerHTML = CATS_META.map(c =>
+  `<div class="cat-item ${activeCat===c.key?'active-cat':''}" onclick="setCat('${c.key}')">
+    <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
+
+let viewMode = 'grid';
+function setView(m) {
+  viewMode = m;
+  document.getElementById('vgrid').classList.toggle('active', m==='grid');
+  document.getElementById('vlist').classList.toggle('active', m==='list');
+  const g = document.getElementById('listing-grid');
+  g.className = m === 'list' ? 'list-view' : 'listings-grid';
+  renderGrid();
+}
+
+function setCat(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-item').forEach((el,i) => {
+    el.classList.toggle('active-cat', CATS_META[i]?.key === cat);
+  });
+  renderGrid();
+}
+
+function renderGrid() {
+  let data = [...LISTINGS];
+  if (activeCat) data = data.filter(l => l.cat.toLowerCase().includes(activeCat));
+  if (searchQ) data = data.filter(l => l.title.toLowerCase().includes(searchQ.toLowerCase()));
+  const sort = document.getElementById('sort-sel').value;
+  if (sort === 'price-asc') data.sort((a,b) => parseFloat(a.price.replace(/[^\d]/g,'')) - parseFloat(b.price.replace(/[^\d]/g,'')));
+  if (sort === 'price-desc') data.sort((a,b) => parseFloat(b.price.replace(/[^\d]/g,'')) - parseFloat(a.price.replace(/[^\d]/g,'')));
+  const show = document.getElementById('show-sel').value;
+  const shown = show === 'all' ? data : data.slice(0, parseInt(show));
+  document.getElementById('results-count').textContent = `${data.length} listing${data.length!==1?'s':''} found`;
+  const grid = document.getElementById('listing-grid');
+  const noRes = document.getElementById('no-results');
+  if (shown.length === 0) { grid.innerHTML=''; noRes.style.display='block'; }
+  else { noRes.style.display='none'; grid.innerHTML = shown.map(renderListingCard).join(''); }
+}
+
+function applyFilter() { renderGrid(); }
+function clearFilters() {
+  ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
+  ['f-cond','f-type','f-year','f-zone'].forEach(id => document.getElementById(id).value='');
+  renderGrid();
+}
+
+renderGrid();
+</script>
+</body>
+</html>

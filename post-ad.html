@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Post Ad — campusMarket</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.post-layout{max-width:860px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:1fr 260px;gap:20px}
+.post-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px}
+.post-card h2{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.post-card .sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.step-indicator{display:flex;align-items:center;margin-bottom:22px;gap:0}
+.si-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;position:relative}
+.si-item::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+.si-item:last-child::after{display:none}
+.si-dot{width:28px;height:28px;border-radius:50%;background:var(--border);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;z-index:1;transition:background .3s}
+.si-dot.done{background:var(--primary)}
+.si-dot.active{background:var(--accent);color:var(--primary)}
+.si-lbl{font-size:10px;color:var(--text-muted);font-weight:600;text-align:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.price-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.price-type-btn{padding:8px;border:2px solid var(--border);border-radius:8px;background:#fff;text-align:center;cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:var(--text)}
+.price-type-btn.selected{border-color:var(--primary);background:#e8eaf6;color:var(--primary)}
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.upload-zone:hover{border-color:var(--primary);background:#f0f2ff}
+.upload-zone .ico{font-size:36px;display:block;margin-bottom:8px}
+.upload-zone p{font-size:13px;color:var(--text-muted)}
+.upload-zone .limit{font-size:11px;color:var(--text-light);margin-top:4px}
+.preview-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.prev-img{width:64px;height:64px;background:#e8eaf6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border);position:relative}
+.prev-img .del{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tip-card{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:12px;padding:16px;margin-bottom:14px;font-size:12px;color:var(--green)}
+.tip-card h5{font-weight:700;margin-bottom:8px;font-size:13px}
+.pricing-info{background:#e3f2fd;border:1px solid #90caf9;border-radius:12px;padding:16px;margin-bottom:14px;font-size:12px;color:#0d47a1}
+.nav-btns{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.char-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px}
+.success-overlay{display:none;position:fixed;inset:0;background:rgba(26,35,126,.85);z-index:999;align-items:center;justify-content:center}
+.success-box{background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:380px}
+.success-box .check{font-size:64px;margin-bottom:16px}
+.success-box h2{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:var(--primary);margin-bottom:8px}
+.success-box p{font-size:14px;color:var(--text-muted);margin-bottom:20px}
+</style>
+</head>
+<body>
+<div id="topbar-root"></div>
+<div id="header-root"></div>
+
+<div class="page-title-bar">
+  <div style="max-width:860px;margin:0 auto;width:100%">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Post an Ad</span></div>
+    <h1>Post a Free Ad</h1>
+  </div>
+</div>
+
+<div class="post-layout">
+  <div>
+    <div class="post-card">
+      <h2>Create Your Listing</h2>
+      <p class="sub">Fill in the details below to post your ad. All fields marked <span style="color:var(--red)">*</span> are required.</p>
+
+      <div class="step-indicator">
+        <div class="si-item"><div class="si-dot active" id="dot1">1</div><div class="si-lbl">Category</div></div>
+        <div class="si-item"><div class="si-dot" id="dot2">2</div><div class="si-lbl">Details</div></div>
+        <div class="si-item"><div class="si-dot" id="dot3">3</div><div class="si-lbl">Photos</div></div>
+        <div class="si-item"><div class="si-dot" id="dot4">4</div><div class="si-lbl">Contact</div></div>
+      </div>
+
+      <!-- Step 1: Category -->
+      <div id="step1">
+        <div class="form-group">
+          <label>Category <span>*</span></label>
+          <select class="form-control" id="cat" onchange="updateCatHint()">
+            <option value="">-- Choose a category --</option>
+            <option>Textbooks</option><option>Notes & Past Papers</option>
+            <option>Electronics</option><option>Stationery</option>
+            <option>Uniforms</option><option>Project Items</option>
+            <option>Services</option><option>Food & Snacks</option>
+            <option>Lost & Found</option><option>Free Stuff</option>
+            <option>Other</option>
+          </select>
+          <div class="form-hint" id="cat-hint">Choose the most relevant category for your item.</div>
+        </div>
+        <div class="form-group">
+          <label>Listing Type <span>*</span></label>
+          <div class="price-type-grid">
+            <div class="price-type-btn selected" onclick="selType(this,'sell')">💰 For Sale</div>
+            <div class="price-type-btn" onclick="selType(this,'swap')">🔄 Swap</div>
+            <div class="price-type-btn" onclick="selType(this,'free')">🎁 Free</div>
+            <div class="price-type-btn" onclick="selType(this,'wanted')">🔍 Wanted</div>
+          </div>
+          <input type="hidden" id="listing-type" value="sell"/>
+        </div>
+        <div class="nav-btns"><button class="btn btn-primary" style="margin-left:auto" onclick="goStep(2)">Continue →</button></div>
+      </div>
+
+      <!-- Step 2: Details -->
+      <div id="step2" style="display:none">
+        <div class="form-group">
+          <label>Ad Title <span>*</span></label>
+          <input type="text" class="form-control" id="title" placeholder="e.g. C++ Programming Textbook — 1st Edition" maxlength="80"
+            oninput="document.getElementById('title-cnt').textContent=this.value.length+'/80'"/>
+          <div class="char-count" id="title-cnt">0/80</div>
+        </div>
+        <div class="row2">
+          <div class="form-group">
+            <label>Price (Rs.) <span>*</span></label>
+            <input type="number" class="form-control" id="price" placeholder="850" min="0"/>
+            <div class="form-hint">Enter 0 for free items</div>
+          </div>
+          <div class="form-group">
+            <label>Condition <span>*</span></label>
+            <select class="form-control" id="condition">
+              <option value="">-- Select --</option>
+              <option>Brand New</option><option>Like New</option>
+              <option>Good</option><option>Used</option><option>For Parts</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description <span>*</span></label>
+          <textarea class="form-control" id="desc" rows="5" maxlength="500"
+            placeholder="Describe your item — condition, any defects, why you're selling, etc."
+            oninput="document.getElementById('desc-cnt').textContent=this.value.length+'/500'"></textarea>
+          <div class="char-count" id="desc-cnt">0/500</div>
+        </div>
+        <div class="row2">
+          <div class="form-group">
+            <label>Campus Zone</label>
+            <select class="form-control" id="zone">
+              <option value="">Select zone</option>
+              <option>Block A</option><option>Block B</option><option>Library</option>
+              <option>Canteen</option><option>Cafeteria</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preferred Meet Time</label>
+            <select class="form-control" id="meettime">
+              <option>Anytime during campus hours</option>
+              <option>Morning (8am–12pm)</option>
+              <option>Afternoon (12pm–4pm)</option>
+              <option>Evening (4pm–6pm)</option>
+            </select>
+          </div>
+        </div>
+        <div class="nav-btns">
+          <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" style="margin-left:auto" onclick="goStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Photos -->
+      <div id="step3" style="display:none">
+        <div class="form-group">
+          <label>Photos (up to 5)</label>
+          <div class="upload-zone" onclick="document.getElementById('img-input').click()">
+            <span class="ico">📷</span>
+            <p>Click to upload photos of your item</p>
+            <p class="limit">JPG, PNG — max 5MB each · Up to 5 photos</p>
+          </div>
+          <input type="file" id="img-input" multiple accept="image/*" style="display:none" onchange="previewImgs(this)"/>
+          <div class="preview-imgs" id="img-preview">
+            <div class="prev-img">📚<span class="del">✕</span></div>
+          </div>
+          <div class="form-hint" style="margin-top:8px">💡 Tip: Good photos get 3x more responses!</div>
+        </div>
+        <div class="nav-btns">
+          <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary" style="margin-left:auto" onclick="goStep(4)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Contact & Submit -->
+      <div id="step4" style="display:none">
+        <div class="form-group">
+          <label>Your Name <span>*</span></label>
+          <input type="text" class="form-control" id="cname" placeholder="Full name" id="cname"/>
+        </div>
+        <div class="row2">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" class="form-control" id="phone" placeholder="07X XXX XXXX"/>
+          </div>
+          <div class="form-group">
+            <label>Email <span>*</span></label>
+            <input type="email" class="form-control" id="email" placeholder="yourname@student.ac.lk"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:#f5f5f5;border-radius:8px">
+            <input type="checkbox" id="terms" style="width:16px;height:16px;margin-top:2px;cursor:pointer"/>
+            <label for="terms" style="font-size:12px;cursor:pointer;font-weight:400;line-height:1.6">I confirm this listing follows campusMarket guidelines. I will not post misleading information or inappropriate content. I agree to meet buyers/sellers safely on campus.</label>
+          </div>
+        </div>
+        <div id="post-err" class="alert alert-warning" style="display:none">⚠️ Please fill in all required fields and agree to the terms.</div>
+        <div class="nav-btns">
+          <button class="btn btn-outline" onclick="goStep(3)">← Back</button>
+          <button class="btn btn-green" style="flex:1;padding:12px;font-size:15px" onclick="submitAd()">🚀 Post Ad Now — FREE!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="pricing-info">
+      <h5 style="font-weight:700;margin-bottom:8px;font-size:13px">💸 Completely Free!</h5>
+      Posting on campusMarket is 100% free for all HNDIT students. No hidden charges.
+    </div>
+    <div class="tip-card">
+      <h5>✅ Tips for a Great Ad</h5>
+      📸 Add clear, well-lit photos<br>
+      💬 Write a detailed description<br>
+      💰 Price fairly — check similar ads<br>
+      📍 Mention where you can meet<br>
+      ⚡ Respond to messages quickly
+    </div>
+    <div class="sidebar-block">
+      <h4>Ad Preview</h4>
+      <div id="ad-preview" style="background:#f5f7fa;border-radius:8px;padding:14px;text-align:center">
+        <div style="font-size:40px;margin-bottom:8px">📦</div>
+        <div id="prev-title" style="font-size:12px;font-weight:700;color:var(--text)">Your ad title will appear here</div>
+        <div id="prev-price" style="font-size:16px;font-weight:800;color:var(--green);margin-top:6px">Rs. —</div>
+        <div id="prev-cat" style="font-size:11px;color:var(--text-muted);margin-top:4px">Category · Zone</div>
+      </div>
+    </div>
+    <div class="sidebar-block">
+      <h4>Need Help?</h4>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Having trouble posting? Contact our admin.</p>
+      <a href="contact.html" class="btn btn-outline btn-full btn-sm">Contact Support</a>
+    </div>
+  </div>
+</div>
+
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <div class="check">🎉</div>
+    <h2>Ad Posted Successfully!</h2>
+    <p>Your listing is now live on campusMarket. Other students can see it right away!</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="index.html" class="btn btn-primary btn-full">Back to Home</a>
+      <a href="post-ad.html" class="btn btn-outline btn-full" onclick="location.reload()">Post Another Ad</a>
+    </div>
+  </div>
+</div>
+
+<div id="footer-root"></div>
+<script src="components.js"></script>
+<script>
+document.getElementById('topbar-root').innerHTML = renderTopbar();
+document.getElementById('header-root').innerHTML = renderHeader();
+document.getElementById('footer-root').innerHTML = renderFooter();
+
+const user = JSON.parse(localStorage.getItem('cm_user')||'null');
+if (user) {
+  setTimeout(()=>{
+    const cn = document.getElementById('cname'); if(cn) cn.value = user.name || '';
+    const em = document.getElementById('email'); if(em) em.value = user.email || '';
+  }, 100);
+}
+
+function goStep(n) {
+  const err = document.getElementById('post-err');
+  if(err) err.style.display='none';
+  if (n===2 && !document.getElementById('cat').value) {
+    alert('Please select a category.'); return;
+  }
+  if (n===3) {
+    if(!document.getElementById('title').value.trim()){alert('Please enter an ad title.');return;}
+    if(!document.getElementById('price').value && document.getElementById('listing-type').value==='sell'){alert('Please enter a price.');return;}
+    if(!document.getElementById('desc').value.trim()){alert('Please write a description.');return;}
+    updatePreview();
+  }
+  for(let i=1;i<=4;i++){
+    document.getElementById('step'+i).style.display = i===n?'block':'none';
+    const d = document.getElementById('dot'+i);
+    d.className = 'si-dot' + (i<n?' done':i===n?' active':'');
+  }
+}
+
+function selType(el, val) {
+  document.querySelectorAll('.price-type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('listing-type').value = val;
+  if(val==='free'||val==='wanted') { document.getElementById('price').value='0'; document.getElementById('price').disabled=true; }
+  else document.getElementById('price').disabled=false;
+}
+
+function updateCatHint() {
+  const hints = {
+    'Textbooks':'Great for selling or swapping used textbooks with fellow students.',
+    'Electronics':'Calculators, laptops, accessories — always in demand!',
+    'Services':'Offer your skills: coding help, design, tutoring, etc.',
+    'Free Stuff':'Give away items you no longer need — great karma! 😊',
+  };
+  const cat = document.getElementById('cat').value;
+  document.getElementById('cat-hint').textContent = hints[cat] || 'Choose the most relevant category for your item.';
+}
+
+function updatePreview() {
+  document.getElementById('prev-title').textContent = document.getElementById('title').value || 'Your ad title';
+  const price = document.getElementById('price').value;
+  document.getElementById('prev-price').textContent = price ? 'Rs. ' + price : 'Free';
+  const cat = document.getElementById('cat').value;
+  const zone = document.getElementById('zone').value;
+  document.getElementById('prev-cat').textContent = (cat||'Category') + ' · ' + (zone||'Campus');
+}
+
+function previewImgs(input) {
+  const prev = document.getElementById('img-preview');
+  prev.innerHTML = '';
+  Array.from(input.files).slice(0,5).forEach((f,i) => {
+    const div = document.createElement('div');
+    div.className = 'prev-img';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.style = 'width:100%;height:100%;object-fit:cover;border-radius:7px';
+    const del = document.createElement('span');
+    del.className='del'; del.textContent='✕'; del.onclick=()=>div.remove();
+    div.appendChild(img); div.appendChild(del); prev.appendChild(div);
+  });
+}
+
+function submitAd() {
+  const name = document.getElementById('cname')?.value;
+  const email = document.getElementById('email')?.value;
+  const terms = document.getElementById('terms').checked;
+  const err = document.getElementById('post-err');
+  if(!name||!email||!terms){err.style.display='flex';return;}
+  document.getElementById('success-overlay').style.display='flex';
+}
+</script>
+</body>
+</html>
