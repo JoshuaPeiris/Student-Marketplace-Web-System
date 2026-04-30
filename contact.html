@@ -106,20 +106,70 @@
   </div>
 
   <div class="section-card" style="margin-bottom:28px">
-    <h2>❓ Frequently Asked Questions</h2>
-    <div id="faq-list">
-      ${[
-        {q:'Who can use campusMarket?', a:'campusMarket is exclusively for HNDIT students. You must register with your student email to post or contact sellers.'},
-        {q:'Is it free to post an ad?', a:'Yes! Posting ads on campusMarket is completely free for all HNDIT students. There are no charges whatsoever.'},
-        {q:'How do I stay safe when buying/selling?', a:'Always meet in public campus areas like the library, canteen, or Block A/B corridors. Inspect items before paying. Bring a friend for expensive items and never share your home address.'},
-        {q:'Can I sell food items?', a:'Yes! There is a Food & Snacks category. Make sure your food is properly packaged and labeled. Follow campus food safety guidelines.'},
-        {q:'What if a seller is unresponsive or scamming?', a:'Use the Report button on any listing or contact our team directly. We will investigate and take action within 24 hours.'},
-        {q:'How do I delete my listing?', a:'Go to My Profile → My Listings and click the delete icon on your listing. Sold items can be marked as sold instead.'},
-      ].map((f,i)=>`<div class="faq-item" id="faq${i}">
-        <div class="faq-q" onclick="toggleFaq(${i})">${f.q}<span class="faq-toggle">▼</span></div>
-        <div class="faq-a">${f.a}</div>
-      </div>`).join('')}
+  <h2>❓ Frequently Asked Questions</h2>
+
+  <div id="faq-list">
+    
+    <div class="faq-item">
+      <button class="faq-q">
+        Who can use campusMarket?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        campusMarket is exclusively for HNDIT students. You must register with your student email to post or contact sellers.
+      </div>
     </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Is it free to post an ad?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        Yes! Posting ads on campusMarket is completely free for all HNDIT students. There are no charges whatsoever.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        How do I stay safe when buying/selling?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        Always meet in public campus areas like the library, canteen, or Block A/B corridors. Inspect items before paying. Bring a friend for expensive items and never share your home address.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        Can I sell food items?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        Yes! There is a Food & Snacks category. Make sure your food is properly packaged and labeled. Follow campus food safety guidelines.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        What if a seller is unresponsive or scamming?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        Use the Report button on any listing or contact our team directly. We will investigate and take action within 24 hours.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q">
+        How do I delete my listing?
+        <span class="faq-toggle">▼</span>
+      </button>
+      <div class="faq-a">
+        Go to My Profile → My Listings and click the delete icon on your listing. Sold items can be marked as sold instead.
+      </div>
+    </div>
+
   </div>
 </div>
 
