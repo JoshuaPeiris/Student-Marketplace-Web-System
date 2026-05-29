@@ -5,6 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Post Ad — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+<script>
+    // 1. Initialize Supabase
+    const supabase = window.supabase.createClient(
+        'https://iyhmqmlcrypjbfhwbnjk.supabase.co', 
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro'
+    );
+
+    async function submitAd() {
+        const err = document.getElementById('post-err');
+        
+        // This object matches your new SQL schema exactly
+        const adData = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('desc').value,
+            price: parseFloat(document.getElementById('price').value) || 0,
+            category: document.getElementById('cat').value,
+            zone: document.getElementById('zone').value,
+            item_condition: document.getElementById('condition').value,
+            listing_type: document.getElementById('listing-type').value,
+            seller_name: document.getElementById('cname').value,
+            seller_phone: document.getElementById('phone').value,
+            seller_id: user ? user.id : '00000000-0000-0000-0000-000000000000', // Default for public posts
+            seller_year: '1st Year' // You can link this to a select input if needed
+        };
+
+        // Basic validation
+        if (!adData.title || !adData.description) {
+            err.textContent = "⚠️ Please fill all required fields.";
+            err.style.display = 'block';
+            return;
+        }
+
+        const { data, error } = await supabase.from('listings').insert([adData]);
+
+        if (error) {
+            console.error(error);
+            err.textContent = "Error: " + error.message;
+            err.style.display = 'block';
+        } else {
+            document.getElementById('success-overlay').style.display = 'flex';
+        }
+    }
+</script>
 <style>
 .post-layout{max-width:860px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:1fr 260px;gap:20px}
 .post-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px}
