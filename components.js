@@ -68,7 +68,7 @@ function renderFooter() {
         <a href="listings.html?cat=free">Free Items</a>
       </div>
       <div class="footer-col"><h5>Campus</h5>
-        <a href="about.html">About Us</a>
+        <a href="contact.html">About Us</a>
         <a href="contact.html">Contact</a>
         <a href="#">Safety Tips</a>
         <a href="#">HNDIT Programme</a>
@@ -92,7 +92,76 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// Sample listings data
+// Category key → emoji map for DB listings
+const CAT_EMOJI = {
+  textbooks: '📚', notes: '📝', electronics: '💻', stationery: '✏️',
+  uniforms: '👕', projects: '🔧', services: '🛠️', food: '🍱',
+  lostfound: '🔍', free: '🎁', other: '📦'
+};
+
+// Normalise a raw DB listing row so renderListingCard can handle it
+function normaliseListing(l) {
+  // Already a local sample listing — pass through
+  if (l.emoji) return l;
+
+  const catKey = (l.category || 'other').toLowerCase().replace(/[^a-z]/g, '');
+  const typeMap = { sell: 'new', swap: 'swap', free: 'free', wanted: 'wanted' };
+  const badge = typeMap[(l.listing_type || '').toLowerCase()] || 'new';
+  const price = parseFloat(l.price) === 0
+    ? (l.listing_type === 'free' ? 'Free' : l.listing_type === 'swap' ? 'Swap' : 'Rs. 0')
+    : (l.listing_type === 'wanted'
+        ? 'Buying: Rs. ' + parseFloat(l.price).toLocaleString()
+        : 'Rs. ' + parseFloat(l.price).toLocaleString());
+
+  const postedAt = l.created_at ? timeAgo(l.created_at) : 'Recently';
+
+  return {
+    id: l.id,
+    title: l.title || 'Untitled',
+    price: price,
+    cat: l.category || 'Other',
+    badge: badge,
+    zone: l.zone || 'Campus',
+    emoji: CAT_EMOJI[catKey] || '📦',
+    time: postedAt,
+    seller: l.seller_name || 'Student',
+    year: l.seller_year || '',
+    desc: l.description || ''
+  };
+}
+
+function timeAgo(dateStr) {
+  const now = new Date();
+  const then = new Date(dateStr);
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+  if (diff < 86400) return Math.floor(diff/3600) + ' hrs ago';
+  if (diff < 604800) return Math.floor(diff/86400) + ' days ago';
+  return then.toLocaleDateString();
+}
+
+function renderListingCard(rawListing) {
+  const l = normaliseListing(rawListing);
+  return `<div class="listing-card" onclick="window.location='listing-detail.html?id=${l.id}'">
+    <div class="listing-thumb"><span>${l.emoji}</span>
+      <button class="listing-fav" onclick="event.stopPropagation();toggleFav(this)">♡</button>
+    </div>
+    <div class="listing-body">
+      <span class="badge badge-${l.badge}" style="margin-bottom:6px;display:inline-block">${(l.badge||'new').toUpperCase()}</span>
+      <div class="listing-title">${l.title}</div>
+      <div class="listing-price">${l.price}</div>
+      <div class="listing-meta">📍 ${l.zone} &bull; ${l.time}</div>
+    </div>
+  </div>`;
+}
+
+function toggleFav(btn) {
+  btn.classList.toggle('active');
+  btn.textContent = btn.classList.contains('active') ? '♥' : '♡';
+}
+
+// Sample listings data (used as fallback when DB is empty)
 const LISTINGS = [
   { id:1, title:'Programming in C++ Textbook (1st Ed)', price:'Rs. 850', cat:'Textbooks', badge:'new', zone:'Block A', emoji:'📚', time:'2 hrs ago', seller:'Kamal P.', year:'2nd Year', desc:'Good condition, no markings. Perfect for 1st semester students.' },
   { id:2, title:'USB-C Hub 7-in-1 — barely used', price:'Rs. 2,200', cat:'Electronics', badge:'urgent', zone:'Library', emoji:'💻', time:'4 hrs ago', seller:'Nimal S.', year:'3rd Year', desc:'Used only 2 months. All ports working.' },
@@ -107,22 +176,3 @@ const LISTINGS = [
   { id:11, title:'Discrete Mathematics (Rosen)', price:'Rs. 750', cat:'Textbooks', badge:'new', zone:'Block A', emoji:'📕', time:'3 days ago', seller:'Nimasha C.', year:'1st Year', desc:'Used one semester, very good condition.' },
   { id:12, title:'Java: Complete Reference — Schildt', price:'Rs. 950', cat:'Textbooks', badge:'urgent', zone:'Canteen', emoji:'📘', time:'4 days ago', seller:'Kasun E.', year:'2nd Year', desc:'Urgent sale, leaving hostel.' },
 ];
-
-function renderListingCard(l) {
-  return `<div class="listing-card" onclick="window.location='listing-detail.html?id=${l.id}'">
-    <div class="listing-thumb"><span>${l.emoji}</span>
-      <button class="listing-fav" onclick="event.stopPropagation();toggleFav(this)">♡</button>
-    </div>
-    <div class="listing-body">
-      <span class="badge badge-${l.badge}" style="margin-bottom:6px;display:inline-block">${l.badge.toUpperCase()}</span>
-      <div class="listing-title">${l.title}</div>
-      <div class="listing-price">${l.price}</div>
-      <div class="listing-meta">📍 ${l.zone} &bull; ${l.time}</div>
-    </div>
-  </div>`;
-}
-
-function toggleFav(btn) {
-  btn.classList.toggle('active');
-  btn.textContent = btn.classList.contains('active') ? '♥' : '♡';
-}
