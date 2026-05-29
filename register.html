@@ -5,47 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Register — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function handleRegister(event) {
-    if (event) event.preventDefault();
-
-    // ⚠️ IMPORTANT: Change these IDs to match the exact "id" attributes on your registration form inputs
-    const fullName = document.getElementById('reg-name').value;
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
-
-    if (!fullName || !email || !password) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    // Register user account directly in Supabase cloud dashboard portal
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          full_name: fullName // This saves the user's name securely inside metadata
-        }
-      }
-    });
-
-    if (error) {
-      alert(`❌ Registration Error: ${error.message}`);
-    } else {
-      alert("✅ Registration successful! Please look for a confirmation email or try logging in now.");
-      window.location.href = 'login.html';
-    }
-  }
-
-  // ⚠️ IMPORTANT: Change this to match your actual register HTML form ID
-  document.getElementById('register-form').addEventListener('submit', handleRegister);
-</script>
 <style>
 body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
 .auth-page{flex:1;display:flex;align-items:center;justify-content:center;padding:30px 16px}
@@ -71,6 +33,7 @@ body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh
 </style>
 </head>
 <body>
+
 <div style="background:var(--primary-dark);padding:10px 24px;display:flex;align-items:center;justify-content:space-between">
   <a href="index.html" class="logo" style="font-family:Poppins,sans-serif;font-size:18px;font-weight:700;color:#fff">campus<span style="color:var(--accent)">Market</span></a>
   <a href="index.html" style="color:rgba(255,255,255,.7);font-size:12px">← Back to Marketplace</a>
@@ -87,19 +50,18 @@ body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh
       <p class="sub">Join the campus marketplace today — it's free!</p>
 
       <div class="step-bar">
-        <div class="step done" id="s1"></div>
-        <div class="step active" id="s2" style="margin-left:4px"></div>
+        <div class="step active" id="s1"></div>
+        <div class="step" id="s2" style="margin-left:4px"></div>
         <div class="step" id="s3" style="margin-left:4px"></div>
       </div>
       <div class="step-labels">
-        <span class="active-lbl">Personal Info</span>
+        <span class="active-lbl" id="lbl1">Personal Info</span>
         <span id="lbl2">Campus Details</span>
         <span id="lbl3">Security</span>
       </div>
 
       <div class="err" id="reg-err"></div>
 
-      <!-- Step 1 -->
       <div id="step1">
         <div class="row2">
           <div class="form-group"><label>First Name <span>*</span></label>
@@ -114,7 +76,6 @@ body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh
         <button class="btn btn-primary btn-full" style="padding:11px" onclick="nextStep(2)">Continue →</button>
       </div>
 
-      <!-- Step 2 -->
       <div id="step2" style="display:none">
         <div class="row2">
           <div class="form-group"><label>Index Number <span>*</span></label>
@@ -139,7 +100,6 @@ body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh
         </div>
       </div>
 
-      <!-- Step 3 -->
       <div id="step3" style="display:none">
         <div class="form-group"><label>Password <span>*</span></label>
           <input type="password" class="form-control" id="pass1" placeholder="Minimum 8 characters"
@@ -166,19 +126,26 @@ body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh
     </div>
   </div>
 </div>
+
 <script src="components.js"></script>
 <script>
+// 2. Initialize connection matching login parameters securely
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let currentStep = 1;
+
 function nextStep(n) {
   const err = document.getElementById('reg-err');
   err.style.display = 'none';
   if (n === 2) {
-    if (!document.getElementById('fname').value || !document.getElementById('lname').value || !document.getElementById('email').value) {
+    if (!document.getElementById('fname').value.trim() || !document.getElementById('lname').value.trim() || !document.getElementById('email').value.trim()) {
       err.textContent = '⚠️ Please fill in all required fields.'; err.style.display = 'block'; return;
     }
   }
   if (n === 3) {
-    if (!document.getElementById('index').value || !document.getElementById('year').value) {
+    if (!document.getElementById('index').value.trim() || !document.getElementById('year').value) {
       err.textContent = '⚠️ Please fill in your index number and year.'; err.style.display = 'block'; return;
     }
   }
@@ -186,9 +153,17 @@ function nextStep(n) {
     document.getElementById('step'+i).style.display = i === n ? 'block' : 'none';
     const s = document.getElementById('s'+i);
     s.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    
+    // Fix step labels visual highlighting state toggle
+    const lbl = document.getElementById('lbl'+i);
+    if (lbl) {
+      if (i === n) lbl.className = 'active-lbl';
+      else lbl.className = '';
+    }
   }
   currentStep = n;
 }
+
 function checkStrength(v) {
   let score = 0;
   if (v.length >= 8) score++;
@@ -200,25 +175,56 @@ function checkStrength(v) {
   fill.style.width = (score * 25) + '%';
   fill.style.background = colors[score-1] || '#eee';
 }
-function doRegister() {
+
+// 3. Centralized Live Database Registration Function
+async function doRegister() {
   const err = document.getElementById('reg-err');
   err.style.display = 'none';
+  
+  // Extract values from your real structural UI fields
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const index = document.getElementById('index').value.trim();
+  const year = document.getElementById('year').value;
+  const zone = document.getElementById('zone').value;
+  const bio = document.getElementById('bio').value.trim();
+  
   const p1 = document.getElementById('pass1').value;
   const p2 = document.getElementById('pass2').value;
   const terms = document.getElementById('terms').checked;
+
+  // Visual validations
   if (!p1 || p1.length < 8) { err.textContent = '⚠️ Password must be at least 8 characters.'; err.style.display = 'block'; return; }
   if (p1 !== p2) { err.textContent = '⚠️ Passwords do not match.'; err.style.display = 'block'; return; }
   if (!terms) { err.textContent = '⚠️ Please agree to the terms.'; err.style.display = 'block'; return; }
-  const user = {
-    name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
-    email: document.getElementById('email').value,
-    year: document.getElementById('year').value,
-    index: document.getElementById('index').value,
-    zone: document.getElementById('zone').value,
-    joined: '2025'
-  };
-  localStorage.setItem('cm_user', JSON.stringify(user));
-  window.location.href = 'index.html';
+
+  const fullName = fname + ' ' + lname;
+
+  // Push user authorization entry right into Supabase Cloud Auth Router
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: p1,
+    options: {
+      data: {
+        full_name: fullName,
+        index_number: index,
+        academic_year: year,
+        campus_zone: zone,
+        phone_number: phone,
+        student_bio: bio
+      }
+    }
+  });
+
+  if (error) {
+    err.textContent = `❌ Registration Error: ${error.message}`;
+    err.style.display = 'block';
+  } else {
+    alert("✅ Registration successful! Redirecting to login page...");
+    window.location.href = 'login.html';
+  }
 }
 </script>
 </body>
