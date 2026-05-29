@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Browse Listings — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+
+<!-- 1. Include Supabase CDN Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 .layout{max-width:1140px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:210px 1fr;gap:18px}
 .listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
@@ -45,6 +49,7 @@
   <div class="sidebar-wrap">
     <div class="sidebar-block">
       <h4>Categories</h4>
+      <!-- This wrapper gets populated dynamically with real data counts now! -->
       <div id="cat-list"></div>
     </div>
     <div class="sidebar-block">
@@ -109,36 +114,41 @@
 <div id="footer-root"></div>
 <script src="components.js"></script>
 <script>
+// 2. Database Keys Initialization
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 document.getElementById('topbar-root').innerHTML = renderTopbar();
 document.getElementById('header-root').innerHTML = renderHeader();
 document.getElementById('footer-root').innerHTML = renderFooter();
 
+// Removed fake static counts from your CATS_META array metadata
 const CATS_META = [
-  {key:'',ico:'🏠',lbl:'All Categories',cnt:302},
-  {key:'textbooks',ico:'📚',lbl:'Textbooks',cnt:84},
-  {key:'notes',ico:'📝',lbl:'Notes & Past Papers',cnt:57},
-  {key:'electronics',ico:'💻',lbl:'Electronics',cnt:41},
-  {key:'stationery',ico:'✏️',lbl:'Stationery',cnt:36},
-  {key:'uniforms',ico:'👕',lbl:'Uniforms',cnt:22},
-  {key:'projects',ico:'🔧',lbl:'Project Items',cnt:18},
-  {key:'services',ico:'🛠️',lbl:'Services',cnt:15},
-  {key:'food',ico:'🍱',lbl:'Food & Snacks',cnt:12},
-  {key:'lostfound',ico:'🔍',lbl:'Lost & Found',cnt:9},
-  {key:'free',ico:'🎁',lbl:'Free Stuff',cnt:8},
+  {key:'',ico:'🏠',lbl:'All Categories'},
+  {key:'textbooks',ico:'📚',lbl:'Textbooks'},
+  {key:'notes',ico:'📝',lbl:'Notes & Papers'},
+  {key:'electronics',ico:'💻',lbl:'Electronics'},
+  {key:'stationery',ico:'✏️',lbl:'Stationery'},
+  {key:'uniforms',ico:'👕',lbl:'Uniforms'},
+  {key:'projects',ico:'🔧',lbl:'Project Items'},
+  {key:'services',ico:'🛠️',lbl:'Services'},
+  {key:'food',ico:'🍱',lbl:'Food & Snacks'},
+  {key:'lostfound',ico:'🔍',lbl:'Lost & Found'},
+  {key:'free',ico:'🎁',lbl:'Free Stuff'},
 ];
 
 const params = new URLSearchParams(location.search);
 let activeCat = params.get('cat') || '';
 let searchQ = params.get('q') || '';
 
+// Holds real products fetched dynamically
+let dbListings = [];
+
 document.getElementById('page-title').textContent = activeCat
   ? CATS_META.find(c=>c.key===activeCat)?.lbl || 'Listings'
   : searchQ ? `Search: "${searchQ}"` : 'Browse All Listings';
 document.getElementById('bc-cat').textContent = activeCat || searchQ || 'All Listings';
-
-document.getElementById('cat-list').innerHTML = CATS_META.map(c =>
-  `<div class="cat-item ${activeCat===c.key?'active-cat':''}" onclick="setCat('${c.key}')">
-    <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
 
 let viewMode = 'grid';
 function setView(m) {
@@ -152,36 +162,98 @@ function setView(m) {
 
 function setCat(cat) {
   activeCat = cat;
-  document.querySelectorAll('.cat-item').forEach((el,i) => {
-    el.classList.toggle('active-cat', CATS_META[i]?.key === cat);
-  });
+  renderSidebarCategories(); // Refresh active styling tags natively
   renderGrid();
 }
 
+// 3. Generates categories dynamically with live real counts!
+function renderSidebarCategories() {
+  document.getElementById('cat-list').innerHTML = CATS_META.map(c => {
+    let count = 0;
+    if (!c.key) {
+      count = dbListings.length;
+    } else {
+      count = dbListings.filter(l => l.category && l.category.toLowerCase() === c.key.toLowerCase()).length;
+    }
+    return `<div class="cat-item ${activeCat===c.key?'active-cat':''}" onclick="setCat('${c.key}')">
+      <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${count}</span></div>`;
+  }).join('');
+}
+
+// 4. Live Database Fetch API Engine
+async function fetchLiveListings() {
+  const { data, error } = await supabaseClient
+    .from('listings')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error pulling ads:", error.message);
+    return;
+  }
+
+  dbListings = data || [];
+  renderSidebarCategories(); // Build dynamic numbers inside sidebar categories
+  renderGrid();
+}
+
+// 5. Advanced Grid Engine with fully operational sidebar filter states[cite: 1]
 function renderGrid() {
-  let data = [...LISTINGS];
-  if (activeCat) data = data.filter(l => l.cat.toLowerCase().includes(activeCat));
-  if (searchQ) data = data.filter(l => l.title.toLowerCase().includes(searchQ.toLowerCase()));
+  let data = [...dbListings];
+
+  // Category & Navbar Search Filters
+  if (activeCat) data = data.filter(l => l.category && l.category.toLowerCase().includes(activeCat.toLowerCase()));
+  if (searchQ) data = data.filter(l => l.title && l.title.toLowerCase().includes(searchQ.toLowerCase()));
+
+  // Active Sidebar Multi-Filter Execution Blocks[cite: 1]
+  const minPrice = parseFloat(document.getElementById('f-min').value);
+  const maxPrice = parseFloat(document.getElementById('f-max').value);
+  const condition = document.getElementById('f-cond').value;
+  const listType = document.getElementById('f-type').value;
+  const sellerYear = document.getElementById('f-year').value;
+  const zone = document.getElementById('f-zone').value;
+
+  if (!isNaN(minPrice)) data = data.filter(l => parseFloat(l.price) >= minPrice);
+  if (!isNaN(maxPrice)) data = data.filter(l => parseFloat(l.price) <= maxPrice);
+  if (condition) data = data.filter(l => l.item_condition === condition);
+  if (listType) data = data.filter(l => l.listing_type === listType);
+  if (sellerYear) data = data.filter(l => l.seller_year === sellerYear);
+  if (zone && zone !== 'All Zones') data = data.filter(l => l.zone === zone);
+
+  // Sorting Algorithmic Handler
   const sort = document.getElementById('sort-sel').value;
-  if (sort === 'price-asc') data.sort((a,b) => parseFloat(a.price.replace(/[^\d]/g,'')) - parseFloat(b.price.replace(/[^\d]/g,'')));
-  if (sort === 'price-desc') data.sort((a,b) => parseFloat(b.price.replace(/[^\d]/g,'')) - parseFloat(a.price.replace(/[^\d]/g,'')));
+  if (sort === 'price-asc') data.sort((a,b) => parseFloat(a.price) - parseFloat(b.price));
+  if (sort === 'price-desc') data.sort((a,b) => parseFloat(b.price) - parseFloat(a.price));
+  if (sort === 'latest') data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // Layout presentation calculations
   const show = document.getElementById('show-sel').value;
   const shown = show === 'all' ? data : data.slice(0, parseInt(show));
+
   document.getElementById('results-count').textContent = `${data.length} listing${data.length!==1?'s':''} found`;
+  
   const grid = document.getElementById('listing-grid');
   const noRes = document.getElementById('no-results');
-  if (shown.length === 0) { grid.innerHTML=''; noRes.style.display='block'; }
-  else { noRes.style.display='none'; grid.innerHTML = shown.map(renderListingCard).join(''); }
+  
+  if (shown.length === 0) { 
+    grid.innerHTML = ''; 
+    noRes.style.display = 'block'; 
+  } else { 
+    noRes.style.display = 'none'; 
+    grid.innerHTML = shown.map(renderListingCard).join(''); 
+  }
 }
 
 function applyFilter() { renderGrid(); }
+
 function clearFilters() {
-  ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
-  ['f-cond','f-type','f-year','f-zone'].forEach(id => document.getElementById(id).value='');
+  ['f-min','f-max'].forEach(id => document.getElementById(id).value = '');
+  ['f-cond','f-type','f-year','f-zone'].forEach(id => document.getElementById(id).value = '');
   renderGrid();
 }
 
-renderGrid();
+// Initial Bootstrapper on startup
+fetchLiveListings();
 </script>
 </body>
 </html>
