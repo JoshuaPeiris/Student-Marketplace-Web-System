@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Browse Listings — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
-
-<!-- 1. Include Supabase CDN Library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 .layout{max-width:1140px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:210px 1fr;gap:18px}
 .listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
@@ -28,6 +25,7 @@
 .pagination{display:flex;gap:6px;justify-content:center;margin-top:20px}
 .pagination a{padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-weight:600;transition:all .15s}
 .pagination a:hover,.pagination a.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.loading-msg{text-align:center;padding:40px;color:var(--text-muted);font-size:14px}
 @media(max-width:700px){.layout{grid-template-columns:1fr}.sidebar-wrap{display:none}}
 </style>
 </head>
@@ -49,7 +47,6 @@
   <div class="sidebar-wrap">
     <div class="sidebar-block">
       <h4>Categories</h4>
-      <!-- This wrapper gets populated dynamically with real data counts now! -->
       <div id="cat-list"></div>
     </div>
     <div class="sidebar-block">
@@ -59,18 +56,41 @@
       <div class="filter-row"><label>Max Price (Rs.)</label>
         <input type="number" class="form-control" id="f-max" placeholder="Any"/></div>
       <div class="filter-row"><label>Condition</label>
-        <select class="form-control" id="f-cond"><option value="">Any</option>
-          <option>Brand New</option><option>Like New</option><option>Good</option><option>Used</option></select></div>
+        <select class="form-control" id="f-cond">
+          <option value="">Any</option>
+          <option value="Brand New">Brand New</option>
+          <option value="Like New">Like New</option>
+          <option value="Good">Good</option>
+          <option value="Used">Used</option>
+        </select>
+      </div>
       <div class="filter-row"><label>Listing Type</label>
-        <select class="form-control" id="f-type"><option value="">All</option>
-          <option>For Sale</option><option>Swap</option><option>Free</option><option>Wanted</option></select></div>
+        <select class="form-control" id="f-type">
+          <option value="">All</option>
+          <option value="For Sale">For Sale</option>
+          <option value="Swap">Swap</option>
+          <option value="Free">Free</option>
+          <option value="Wanted">Wanted</option>
+        </select>
+      </div>
       <div class="filter-row"><label>Seller Year</label>
-        <select class="form-control" id="f-year"><option value="">Any</option>
-          <option>1st Year</option><option>2nd Year</option><option>3rd Year</option></select></div>
+        <select class="form-control" id="f-year">
+          <option value="">Any</option>
+          <option value="1st Year">1st Year</option>
+          <option value="2nd Year">2nd Year</option>
+          <option value="3rd Year">3rd Year</option>
+        </select>
+      </div>
       <div class="filter-row"><label>Campus Zone</label>
-        <select class="form-control" id="f-zone"><option value="">All Zones</option>
-          <option>Block A</option><option>Block B</option><option>Library</option>
-          <option>Canteen</option><option>Cafeteria</option></select></div>
+        <select class="form-control" id="f-zone">
+          <option value="">All Zones</option>
+          <option value="Block A">Block A</option>
+          <option value="Block B">Block B</option>
+          <option value="Library">Library</option>
+          <option value="Canteen">Canteen</option>
+          <option value="Cafeteria">Cafeteria</option>
+        </select>
+      </div>
       <button class="btn btn-primary btn-full" onclick="applyFilter()" style="margin-top:6px">Apply Filters</button>
       <button class="btn btn-outline btn-full" onclick="clearFilters()" style="margin-top:8px">Clear All</button>
     </div>
@@ -100,13 +120,14 @@
       </div>
     </div>
 
-    <div id="listing-grid" class="listings-grid"></div>
+    <div id="listing-grid" class="listings-grid">
+      <div class="loading-msg">⏳ Loading listings...</div>
+    </div>
     <div id="no-results" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">
       <div style="font-size:48px;margin-bottom:12px">🔍</div>
       <h3>No listings found</h3>
       <p style="font-size:13px;margin-top:6px">Try adjusting your filters or <a href="post-ad.html">post what you need</a>.</p>
     </div>
-
     <div class="pagination" id="pagination"></div>
   </div>
 </div>
@@ -114,8 +135,7 @@
 <div id="footer-root"></div>
 <script src="components.js"></script>
 <script>
-// 2. Database Keys Initialization
-const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -123,7 +143,6 @@ document.getElementById('topbar-root').innerHTML = renderTopbar();
 document.getElementById('header-root').innerHTML = renderHeader();
 document.getElementById('footer-root').innerHTML = renderFooter();
 
-// Removed fake static counts from your CATS_META array metadata
 const CATS_META = [
   {key:'',ico:'🏠',lbl:'All Categories'},
   {key:'textbooks',ico:'📚',lbl:'Textbooks'},
@@ -138,49 +157,41 @@ const CATS_META = [
   {key:'free',ico:'🎁',lbl:'Free Stuff'},
 ];
 
-const params = new URLSearchParams(location.search);
-let activeCat = params.get('cat') || '';
-let searchQ = params.get('q') || '';
-
-// Holds real products fetched dynamically
+const urlParams = new URLSearchParams(location.search);
+let activeCat = urlParams.get('cat') || '';
+let searchQ   = urlParams.get('q')   || '';
 let dbListings = [];
+let viewMode = 'grid';
 
 document.getElementById('page-title').textContent = activeCat
-  ? CATS_META.find(c=>c.key===activeCat)?.lbl || 'Listings'
+  ? CATS_META.find(c => c.key === activeCat)?.lbl || 'Listings'
   : searchQ ? `Search: "${searchQ}"` : 'Browse All Listings';
 document.getElementById('bc-cat').textContent = activeCat || searchQ || 'All Listings';
 
-let viewMode = 'grid';
 function setView(m) {
   viewMode = m;
-  document.getElementById('vgrid').classList.toggle('active', m==='grid');
-  document.getElementById('vlist').classList.toggle('active', m==='list');
-  const g = document.getElementById('listing-grid');
-  g.className = m === 'list' ? 'list-view' : 'listings-grid';
+  document.getElementById('vgrid').classList.toggle('active', m === 'grid');
+  document.getElementById('vlist').classList.toggle('active', m === 'list');
+  document.getElementById('listing-grid').className = m === 'list' ? 'list-view' : 'listings-grid';
   renderGrid();
 }
 
 function setCat(cat) {
   activeCat = cat;
-  renderSidebarCategories(); // Refresh active styling tags natively
+  renderSidebarCategories();
   renderGrid();
 }
 
-// 3. Generates categories dynamically with live real counts!
 function renderSidebarCategories() {
   document.getElementById('cat-list').innerHTML = CATS_META.map(c => {
-    let count = 0;
-    if (!c.key) {
-      count = dbListings.length;
-    } else {
-      count = dbListings.filter(l => l.category && l.category.toLowerCase() === c.key.toLowerCase()).length;
-    }
-    return `<div class="cat-item ${activeCat===c.key?'active-cat':''}" onclick="setCat('${c.key}')">
+    const count = c.key
+      ? dbListings.filter(l => (l.category || '').toLowerCase() === c.key).length
+      : dbListings.length;
+    return `<div class="cat-item ${activeCat === c.key ? 'active-cat' : ''}" onclick="setCat('${c.key}')">
       <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${count}</span></div>`;
   }).join('');
 }
 
-// 4. Live Database Fetch API Engine
 async function fetchLiveListings() {
   const { data, error } = await supabaseClient
     .from('listings')
@@ -188,86 +199,84 @@ async function fetchLiveListings() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error("Error pulling ads:", error.message);
-    return;
+    console.error('Supabase fetch error:', error.message);
+    // Fall back to sample data so the page isn't blank
+    dbListings = LISTINGS;
+  } else {
+    // Use DB data if available, otherwise fall back to sample data
+    dbListings = (data && data.length > 0) ? data : LISTINGS;
   }
 
-  dbListings = data || [];
-  renderSidebarCategories(); // Build dynamic numbers inside sidebar categories
+  renderSidebarCategories();
   renderGrid();
 }
 
-// 5. Advanced Grid Engine with fully operational sidebar filter states[cite: 1]
 function renderGrid() {
   let data = [...dbListings];
 
-  // Category & Navbar Search Filters
+  // Category filter (DB rows use lowercase keys; sample LISTINGS use display names)
   if (activeCat) {
     data = data.filter(l => {
-      const dbCat = (l.category || '').trim().toLowerCase();
-      const urlCat = activeCat.trim().toLowerCase();
-      return dbCat === urlCat;
+      const cat = (l.category || l.cat || '').toLowerCase();
+      return cat === activeCat.toLowerCase() || cat.includes(activeCat.toLowerCase());
     });
   }
 
-  // 2. Search Query Filter (Robust)
+  // Search filter
   if (searchQ) {
-    data = data.filter(l => {
-      const title = (l.title || '').toLowerCase();
-      const search = searchQ.trim().toLowerCase();
-      return title.includes(search);
-    });
+    const q = searchQ.trim().toLowerCase();
+    data = data.filter(l => (l.title || '').toLowerCase().includes(q));
   }
 
-  // Active Sidebar Multi-Filter Execution Blocks[cite: 1]
-  const minPrice = parseFloat(document.getElementById('f-min').value);
-  const maxPrice = parseFloat(document.getElementById('f-max').value);
+  // Sidebar filters
+  const minPrice  = parseFloat(document.getElementById('f-min').value);
+  const maxPrice  = parseFloat(document.getElementById('f-max').value);
   const condition = document.getElementById('f-cond').value;
-  const listType = document.getElementById('f-type').value;
-  const sellerYear = document.getElementById('f-year').value;
-  const zone = document.getElementById('f-zone').value;
+  const listType  = document.getElementById('f-type').value;
+  const selYear   = document.getElementById('f-year').value;
+  const zone      = document.getElementById('f-zone').value;
 
   if (!isNaN(minPrice)) data = data.filter(l => parseFloat(l.price) >= minPrice);
   if (!isNaN(maxPrice)) data = data.filter(l => parseFloat(l.price) <= maxPrice);
-  if (condition) data = data.filter(l => l.item_condition === condition);
-  if (listType) data = data.filter(l => l.listing_type === listType);
-  if (sellerYear) data = data.filter(l => l.seller_year === sellerYear);
-  if (zone && zone !== 'All Zones') data = data.filter(l => l.zone === zone);
+  if (condition)  data = data.filter(l => (l.item_condition || l.condition || '') === condition);
+  if (listType)   data = data.filter(l => (l.listing_type || '') === listType);
+  if (selYear)    data = data.filter(l => (l.seller_year || l.year || '') === selYear);
+  if (zone)       data = data.filter(l => (l.zone || '') === zone);
 
-  // Sorting Algorithmic Handler
+  // Sort
   const sort = document.getElementById('sort-sel').value;
-  if (sort === 'price-asc') data.sort((a,b) => parseFloat(a.price) - parseFloat(b.price));
-  if (sort === 'price-desc') data.sort((a,b) => parseFloat(b.price) - parseFloat(a.price));
-  if (sort === 'latest') data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  if (sort === 'price-asc')  data.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  if (sort === 'price-desc') data.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+  if (sort === 'latest')     data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-  // Layout presentation calculations
-  const show = document.getElementById('show-sel').value;
-  const shown = show === 'all' ? data : data.slice(0, parseInt(show));
+  const showVal = document.getElementById('show-sel').value;
+  const shown   = showVal === 'all' ? data : data.slice(0, parseInt(showVal));
 
-  document.getElementById('results-count').textContent = `${data.length} listing${data.length!==1?'s':''} found`;
-  
-  const grid = document.getElementById('listing-grid');
+  document.getElementById('results-count').textContent = `${data.length} listing${data.length !== 1 ? 's' : ''} found`;
+
+  const grid  = document.getElementById('listing-grid');
   const noRes = document.getElementById('no-results');
-  
-  if (shown.length === 0) { 
-    grid.innerHTML = ''; 
-    noRes.style.display = 'block'; 
-  } else { 
-    noRes.style.display = 'none'; 
-    grid.innerHTML = shown.map(renderListingCard).join(''); 
+
+  if (shown.length === 0) {
+    grid.innerHTML = '';
+    noRes.style.display = 'block';
+  } else {
+    noRes.style.display = 'none';
+    grid.innerHTML = shown.map(renderListingCard).join('');
   }
 }
 
 function applyFilter() { renderGrid(); }
 
 function clearFilters() {
-  ['f-min','f-max'].forEach(id => document.getElementById(id).value = '');
-  ['f-cond','f-type','f-year','f-zone'].forEach(id => document.getElementById(id).value = '');
+  ['f-min', 'f-max'].forEach(id => document.getElementById(id).value = '');
+  ['f-cond', 'f-type', 'f-year', 'f-zone'].forEach(id => document.getElementById(id).value = '');
   renderGrid();
 }
 
-// Initial Bootstrapper on startup
+// Boot
 fetchLiveListings();
 </script>
 </body>
 </html>
+
