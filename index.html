@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
-<link rel="icon" type="svg" href="favicon.svg"/>
+<!-- Fixed: correct anon key (no duplicated role claim) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 .hero{background:linear-gradient(135deg,#1a237e 0%,#283593 50%,#1565c0 100%);color:#fff;padding:32px 24px;position:relative;overflow:hidden}
@@ -34,10 +34,6 @@
 .qcat .ico{font-size:28px;display:block;margin-bottom:6px}
 .qcat .lbl{font-size:11px;font-weight:700;color:var(--text-muted)}
 .qcat .cnt{font-size:10px;color:var(--primary);font-weight:700}
-.pagination{display:flex;gap:6px;justify-content:center;margin-top:16px}
-.pagination a{padding:6px 12px;font-size:13px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text);font-weight:600;transition:all .15s}
-.pagination a:hover{border-color:var(--primary);color:var(--primary)}
-.pagination a.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .notice-bar{background:var(--primary);color:#fff;text-align:center;padding:8px;font-size:12px}
 .notice-bar a{color:var(--accent);font-weight:700}
 @media(max-width:700px){.main-layout{grid-template-columns:1fr}.sidebar-wrap{display:none}.hero-art{display:none}}
@@ -59,7 +55,7 @@
         <a href="post-ad.html" class="btn btn-orange">+ Post Free Ad</a>
       </div>
       <div class="hero-stats">
-        <div class="stat-item"><div class="stat-num">342</div><div class="stat-lbl">Active Listings</div></div>
+        <div class="stat-item"><div class="stat-num" id="stat-listings">—</div><div class="stat-lbl">Active Listings</div></div>
         <div class="stat-item"><div class="stat-num">89</div><div class="stat-lbl">Students Online</div></div>
         <div class="stat-item"><div class="stat-num">1.2k</div><div class="stat-lbl">Trades Done</div></div>
         <div class="stat-item"><div class="stat-num">100%</div><div class="stat-lbl">Campus-Only</div></div>
@@ -72,16 +68,16 @@
 <div style="max-width:1140px;margin:18px auto;padding:0 16px">
   <div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Quick Categories</div>
   <div class="quick-cats">
-    <div class="qcat" onclick="window.location='listings.html?cat=textbooks'"><span class="ico">📚</span><div class="lbl">Textbooks</div><div class="cnt" id="count-textbooks">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=notes'"><span class="ico">📝</span><div class="lbl">Notes</div><div class="cnt" id="count-notes">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=electronics'"><span class="ico">💻</span><div class="lbl">Electronics</div><div class="cnt" id="count-electronics">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=stationery'"><span class="ico">✏️</span><div class="lbl">Stationery</div><div class="cnt" id="count-stationery">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=uniforms'"><span class="ico">👕</span><div class="lbl">Uniforms</div><div class="cnt" id="count-uniforms">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=projects'"><span class="ico">🔧</span><div class="lbl">Projects</div><div class="cnt" id="count-projects">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=services'"><span class="ico">🛠️</span><div class="lbl">Services</div><div class="cnt" id="count-services">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=free'"><span class="ico">🎁</span><div class="lbl">Free Stuff</div><div class="cnt" id="count-free">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=lostfound'"><span class="ico">🔍</span><div class="lbl">Lost &amp; Found</div><div class="cnt" id="count-lostfound">0 ads</div></div>
-    <div class="qcat" onclick="window.location='listings.html?cat=food'"><span class="ico">🍱</span><div class="lbl">Food</div><div class="cnt" id="count-food">0 ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=textbooks'"><span class="ico">📚</span><div class="lbl">Textbooks</div><div class="cnt" id="count-textbooks">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=notes'"><span class="ico">📝</span><div class="lbl">Notes</div><div class="cnt" id="count-notes">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=electronics'"><span class="ico">💻</span><div class="lbl">Electronics</div><div class="cnt" id="count-electronics">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=stationery'"><span class="ico">✏️</span><div class="lbl">Stationery</div><div class="cnt" id="count-stationery">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=uniforms'"><span class="ico">👕</span><div class="lbl">Uniforms</div><div class="cnt" id="count-uniforms">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=projects'"><span class="ico">🔧</span><div class="lbl">Projects</div><div class="cnt" id="count-projects">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=services'"><span class="ico">🛠️</span><div class="lbl">Services</div><div class="cnt" id="count-services">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=free'"><span class="ico">🎁</span><div class="lbl">Free Stuff</div><div class="cnt" id="count-free">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=lostfound'"><span class="ico">🔍</span><div class="lbl">Lost &amp; Found</div><div class="cnt" id="count-lostfound">— ads</div></div>
+    <div class="qcat" onclick="window.location='listings.html?cat=food'"><span class="ico">🍱</span><div class="lbl">Food</div><div class="cnt" id="count-food">— ads</div></div>
   </div>
 </div>
 
@@ -98,13 +94,30 @@
         <input type="number" placeholder="Max" id="f-max"/>
       </div>
       <div class="filter-row"><label>Condition</label>
-        <select id="f-cond"><option value="">Any</option><option>Brand New</option><option>Like New</option><option>Good</option><option>Used</option></select>
+        <select id="f-cond">
+          <option value="">Any</option>
+          <option value="Brand New">Brand New</option>
+          <option value="Like New">Like New</option>
+          <option value="Good">Good</option>
+          <option value="Used">Used</option>
+        </select>
       </div>
       <div class="filter-row"><label>Seller Year</label>
-        <select id="f-year"><option value="">Any Year</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option></select>
+        <select id="f-year">
+          <option value="">Any Year</option>
+          <option value="1st Year">1st Year</option>
+          <option value="2nd Year">2nd Year</option>
+          <option value="3rd Year">3rd Year</option>
+        </select>
       </div>
       <div class="filter-row"><label>Type</label>
-        <select id="f-type"><option value="">All Types</option><option>For Sale</option><option>Swap</option><option>Free</option><option>Wanted</option></select>
+        <select id="f-type">
+          <option value="">All Types</option>
+          <option value="For Sale">For Sale</option>
+          <option value="Swap">Swap</option>
+          <option value="Free">Free</option>
+          <option value="Wanted">Wanted</option>
+        </select>
       </div>
       <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="applyFilter()">Apply Filters</button>
       <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="clearFilter()">Clear</button>
@@ -114,22 +127,24 @@
       <div id="sidebar-account"></div>
     </div>
   </div>
+
   <div>
     <div class="featured-strip">
       <span>⭐</span>
       <span><strong>Featured:</strong> 2nd Year HNDIT Full Note Bundle — discounted for Batch 2025!</span>
-      <a href="listing-detail.html?id=3">View →</a>
+      <a href="listings.html?cat=notes">View →</a>
     </div>
     <div class="section-hd"><h2>🕐 Latest Listings</h2><a href="listings.html">See all →</a></div>
-    <div class="listings-grid" id="latest-grid"></div>
+    <div class="listings-grid" id="latest-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">⏳ Loading...</div>
+    </div>
     <div class="promo-strip">
       🛠️ <span><strong>Need project help?</strong> 3rd year students offering web dev, circuit design &amp; poster services.</span>
       <a href="listings.html?cat=services">Browse Services →</a>
     </div>
     <div class="section-hd" style="margin-top:8px"><h2>📚 Popular Textbooks</h2><a href="listings.html?cat=textbooks">See all →</a></div>
-    <div class="listings-grid" id="books-grid"></div>
-    <div class="pagination" style="margin-top:20px">
-      <a href="#" class="active">1</a><a href="#">2</a><a href="#">3</a><a href="#">...</a><a href="#">12</a>
+    <div class="listings-grid" id="books-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">⏳ Loading...</div>
     </div>
   </div>
 </div>
@@ -137,62 +152,96 @@
 <div id="footer-root"></div>
 <script src="components.js"></script>
 <script>
-  const supabase = window.supabase.createClient(
-      'https://iyhmqmlcrypjbfhwbnjk.supabase.co', 
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro'
-  );
+// Fixed: correct anon key with no duplicate fields
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function syncCategoryCounts() {
-    const { data, error } = await supabase.from('listings').select('category');
-    if (error) { console.error("Error:", error); return; }
+document.getElementById('topbar-root').innerHTML = renderTopbar();
+document.getElementById('header-root').innerHTML = renderHeader('All');
+document.getElementById('footer-root').innerHTML = renderFooter();
 
-    const cats = ['textbooks', 'notes', 'electronics', 'stationery', 'uniforms', 'projects', 'services', 'food', 'lostfound', 'free'];
-    cats.forEach(cat => {
-        const count = data.filter(item => item.category && item.category.toLowerCase().includes(cat)).length;
-        const el = document.getElementById(`count-${cat}`);
-        if (el) el.textContent = count + ' ads';
-    });
+// Sidebar categories (static display names)
+const CATS = [
+  {ico:'📚',lbl:'Textbooks',key:'textbooks'},{ico:'📝',lbl:'Notes',key:'notes'},
+  {ico:'💻',lbl:'Electronics',key:'electronics'},{ico:'✏️',lbl:'Stationery',key:'stationery'},
+  {ico:'👕',lbl:'Uniforms',key:'uniforms'},{ico:'🔧',lbl:'Project Items',key:'projects'},
+  {ico:'🛠️',lbl:'Services',key:'services'},{ico:'🍱',lbl:'Food & Snacks',key:'food'},
+  {ico:'🔍',lbl:'Lost & Found',key:'lostfound'},{ico:'🎁',lbl:'Free Stuff',key:'free'}
+];
+document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
+  `<div class="cat-item" onclick="window.location='listings.html?cat=${c.key}'">
+    <span class="ico">${c.ico}</span>${c.lbl}</div>`).join('');
+
+// Account sidebar
+const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
+document.getElementById('sidebar-account').innerHTML = user
+  ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
+     <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
+     <div class="cat-item" onclick="window.location='profile.html'"><span class="ico">⭐</span>Saved Items</div>`
+  : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
+     <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
+     <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
+
+async function loadHomeListings() {
+  const { data, error } = await supabaseClient
+    .from('listings')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  let allListings = [];
+  if (!error && data && data.length > 0) {
+    allListings = data;
+  } else {
+    allListings = LISTINGS; // sample fallback
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    syncCategoryCounts();
-    if(typeof renderTopbar === 'function') document.getElementById('topbar-root').innerHTML = renderTopbar();
-    if(typeof renderHeader === 'function') document.getElementById('header-root').innerHTML = renderHeader('All');
-    if(typeof renderFooter === 'function') document.getElementById('footer-root').innerHTML = renderFooter();
+  // Update hero stat
+  document.getElementById('stat-listings').textContent = allListings.length;
 
-    const CATS = [
-      {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
-      {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
-      {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
-    ];
-    document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
-      `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
-        <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
-
-    const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
-    document.getElementById('sidebar-account').innerHTML = user
-      ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
-         <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
-         <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
-      : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
-         <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
-         <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
-
-    if(typeof LISTINGS !== 'undefined') {
-        document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
-        document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
-    }
+  // Update category counts in quick-cats grid
+  const catKeys = ['textbooks','notes','electronics','stationery','uniforms','projects','services','food','lostfound','free'];
+  catKeys.forEach(cat => {
+    const count = allListings.filter(item =>
+      (item.category || item.cat || '').toLowerCase().includes(cat)
+    ).length;
+    const el = document.getElementById('count-' + cat);
+    if (el) el.textContent = count + ' ads';
   });
 
-  function applyFilter() {
-    const min = document.getElementById('f-min').value;
-    const q = min ? `?min=${min}&max=${document.getElementById('f-max').value}&cond=${document.getElementById('f-cond').value}` : '';
-    window.location.href = 'listings.html' + q;
-  }
-  function clearFilter() {
-    ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
-    ['f-cond','f-year','f-type'].forEach(id => document.getElementById(id).value='');
-  }
+  // Latest listings grid
+  document.getElementById('latest-grid').innerHTML =
+    allListings.slice(0, 8).map(renderListingCard).join('');
+
+  // Textbooks grid
+  const books = allListings.filter(l =>
+    (l.category || l.cat || '').toLowerCase().includes('textbook')
+  );
+  document.getElementById('books-grid').innerHTML =
+    (books.length > 0 ? books.slice(0, 8) : allListings.slice(0, 4)).map(renderListingCard).join('');
+}
+
+function applyFilter() {
+  const min  = document.getElementById('f-min').value;
+  const max  = document.getElementById('f-max').value;
+  const cond = document.getElementById('f-cond').value;
+  const year = document.getElementById('f-year').value;
+  const type = document.getElementById('f-type').value;
+  const params = new URLSearchParams();
+  if (min)  params.set('min', min);
+  if (max)  params.set('max', max);
+  if (cond) params.set('cond', cond);
+  if (year) params.set('year', year);
+  if (type) params.set('type', type);
+  window.location.href = 'listings.html?' + params.toString();
+}
+
+function clearFilter() {
+  ['f-min','f-max'].forEach(id => document.getElementById(id).value = '');
+  ['f-cond','f-year','f-type'].forEach(id => document.getElementById(id).value = '');
+}
+
+loadHomeListings();
 </script>
 </body>
 </html>
