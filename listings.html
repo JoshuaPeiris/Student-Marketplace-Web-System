@@ -202,8 +202,22 @@ function renderGrid() {
   let data = [...dbListings];
 
   // Category & Navbar Search Filters
-  if (activeCat) data = data.filter(l => l.category && l.category.toLowerCase().includes(activeCat.toLowerCase()));
-  if (searchQ) data = data.filter(l => l.title && l.title.toLowerCase().includes(searchQ.toLowerCase()));
+  if (activeCat) {
+    data = data.filter(l => {
+      const dbCat = (l.category || '').trim().toLowerCase();
+      const urlCat = activeCat.trim().toLowerCase();
+      return dbCat === urlCat;
+    });
+  }
+
+  // 2. Search Query Filter (Robust)
+  if (searchQ) {
+    data = data.filter(l => {
+      const title = (l.title || '').toLowerCase();
+      const search = searchQ.trim().toLowerCase();
+      return title.includes(search);
+    });
+  }
 
   // Active Sidebar Multi-Filter Execution Blocks[cite: 1]
   const minPrice = parseFloat(document.getElementById('f-min').value);
