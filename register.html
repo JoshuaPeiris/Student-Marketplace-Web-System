@@ -5,6 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Register — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function handleRegister(event) {
+    if (event) event.preventDefault();
+
+    // ⚠️ IMPORTANT: Change these IDs to match the exact "id" attributes on your registration form inputs
+    const fullName = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+
+    if (!fullName || !email || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Register user account directly in Supabase cloud dashboard portal
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          full_name: fullName // This saves the user's name securely inside metadata
+        }
+      }
+    });
+
+    if (error) {
+      alert(`❌ Registration Error: ${error.message}`);
+    } else {
+      alert("✅ Registration successful! Please look for a confirmation email or try logging in now.");
+      window.location.href = 'login.html';
+    }
+  }
+
+  // ⚠️ IMPORTANT: Change this to match your actual register HTML form ID
+  document.getElementById('register-form').addEventListener('submit', handleRegister);
+</script>
 <style>
 body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
 .auth-page{flex:1;display:flex;align-items:center;justify-content:center;padding:30px 16px}
