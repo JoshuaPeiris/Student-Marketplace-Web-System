@@ -26,7 +26,7 @@
 .featured-strip{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13px;color:#5d4037}
 .featured-strip strong{color:#e65100}
 .featured-strip a{color:var(--primary);font-weight:700;margin-left:auto;white-space:nowrap}
-.promo-strip{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;align-items:center;gap:10px;font-size:13px;color:#green}
+.promo-strip{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green)}
 .promo-strip a{color:var(--green);font-weight:700;margin-left:auto}
 .quick-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;margin:18px 0}
 .qcat{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s}
@@ -154,31 +154,35 @@
     });
   }
 
-  syncCategoryCounts();
-  document.getElementById('topbar-root').innerHTML = renderTopbar();
-  document.getElementById('header-root').innerHTML = renderHeader('All');
-  document.getElementById('footer-root').innerHTML = renderFooter();
+  document.addEventListener('DOMContentLoaded', () => {
+    syncCategoryCounts();
+    if(typeof renderTopbar === 'function') document.getElementById('topbar-root').innerHTML = renderTopbar();
+    if(typeof renderHeader === 'function') document.getElementById('header-root').innerHTML = renderHeader('All');
+    if(typeof renderFooter === 'function') document.getElementById('footer-root').innerHTML = renderFooter();
 
-  const CATS = [
-    {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
-    {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
-    {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
-  ];
-  document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
-    `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
-      <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
+    const CATS = [
+      {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
+      {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
+      {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
+    ];
+    document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
+      `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
+        <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
 
-  const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
-  document.getElementById('sidebar-account').innerHTML = user
-    ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
-       <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
-       <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
-    : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
-       <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
-       <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
+    const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
+    document.getElementById('sidebar-account').innerHTML = user
+      ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
+         <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
+         <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
+      : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
+         <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
+         <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
 
-  document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
-  document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
+    if(typeof LISTINGS !== 'undefined') {
+        document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
+        document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
+    }
+  });
 
   function applyFilter() {
     const min = document.getElementById('f-min').value;
