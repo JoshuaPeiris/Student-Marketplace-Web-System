@@ -5,49 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Post Ad — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
-<script>
-    // 1. Initialize Supabase
-    const supabase = window.supabase.createClient(
-        'https://iyhmqmlcrypjbfhwbnjk.supabase.co', 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro'
-    );
-
-    async function submitAd() {
-        const err = document.getElementById('post-err');
-        
-        // This object matches your new SQL schema exactly
-        const adData = {
-            title: document.getElementById('title').value,
-            description: document.getElementById('desc').value,
-            price: parseFloat(document.getElementById('price').value) || 0,
-            category: document.getElementById('cat').value,
-            zone: document.getElementById('zone').value,
-            item_condition: document.getElementById('condition').value,
-            listing_type: document.getElementById('listing-type').value,
-            seller_name: document.getElementById('cname').value,
-            seller_phone: document.getElementById('phone').value,
-            seller_id: user ? user.id : '00000000-0000-0000-0000-000000000000', // Default for public posts
-            seller_year: '1st Year' // You can link this to a select input if needed
-        };
-
-        // Basic validation
-        if (!adData.title || !adData.description) {
-            err.textContent = "⚠️ Please fill all required fields.";
-            err.style.display = 'block';
-            return;
-        }
-
-        const { data, error } = await supabase.from('listings').insert([adData]);
-
-        if (error) {
-            console.error(error);
-            err.textContent = "Error: " + error.message;
-            err.style.display = 'block';
-        } else {
-            document.getElementById('success-overlay').style.display = 'flex';
-        }
-    }
-</script>
+<!-- Supabase MUST be loaded before any script that uses it -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 .post-layout{max-width:860px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:1fr 260px;gap:20px}
 .post-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px}
@@ -112,27 +71,33 @@
       <!-- Step 1: Category -->
       <div id="step1">
         <div class="form-group">
-          <label>Category <span>*</span></label>
+          <label>Category <span style="color:var(--red)">*</span></label>
+          <!-- Values use lowercase keys matching the DB and URL params -->
           <select class="form-control" id="cat" onchange="updateCatHint()">
             <option value="">-- Choose a category --</option>
-            <option>Textbooks</option><option>Notes & Past Papers</option>
-            <option>Electronics</option><option>Stationery</option>
-            <option>Uniforms</option><option>Project Items</option>
-            <option>Services</option><option>Food & Snacks</option>
-            <option>Lost & Found</option><option>Free Stuff</option>
-            <option>Other</option>
+            <option value="textbooks">Textbooks</option>
+            <option value="notes">Notes &amp; Past Papers</option>
+            <option value="electronics">Electronics</option>
+            <option value="stationery">Stationery</option>
+            <option value="uniforms">Uniforms</option>
+            <option value="projects">Project Items</option>
+            <option value="services">Services</option>
+            <option value="food">Food &amp; Snacks</option>
+            <option value="lostfound">Lost &amp; Found</option>
+            <option value="free">Free Stuff</option>
+            <option value="other">Other</option>
           </select>
           <div class="form-hint" id="cat-hint">Choose the most relevant category for your item.</div>
         </div>
         <div class="form-group">
-          <label>Listing Type <span>*</span></label>
+          <label>Listing Type <span style="color:var(--red)">*</span></label>
           <div class="price-type-grid">
-            <div class="price-type-btn selected" onclick="selType(this,'sell')">💰 For Sale</div>
-            <div class="price-type-btn" onclick="selType(this,'swap')">🔄 Swap</div>
-            <div class="price-type-btn" onclick="selType(this,'free')">🎁 Free</div>
-            <div class="price-type-btn" onclick="selType(this,'wanted')">🔍 Wanted</div>
+            <div class="price-type-btn selected" onclick="selType(this,'For Sale')">💰 For Sale</div>
+            <div class="price-type-btn" onclick="selType(this,'Swap')">🔄 Swap</div>
+            <div class="price-type-btn" onclick="selType(this,'Free')">🎁 Free</div>
+            <div class="price-type-btn" onclick="selType(this,'Wanted')">🔍 Wanted</div>
           </div>
-          <input type="hidden" id="listing-type" value="sell"/>
+          <input type="hidden" id="listing-type" value="For Sale"/>
         </div>
         <div class="nav-btns"><button class="btn btn-primary" style="margin-left:auto" onclick="goStep(2)">Continue →</button></div>
       </div>
@@ -140,28 +105,31 @@
       <!-- Step 2: Details -->
       <div id="step2" style="display:none">
         <div class="form-group">
-          <label>Ad Title <span>*</span></label>
+          <label>Ad Title <span style="color:var(--red)">*</span></label>
           <input type="text" class="form-control" id="title" placeholder="e.g. C++ Programming Textbook — 1st Edition" maxlength="80"
             oninput="document.getElementById('title-cnt').textContent=this.value.length+'/80'"/>
           <div class="char-count" id="title-cnt">0/80</div>
         </div>
         <div class="row2">
           <div class="form-group">
-            <label>Price (Rs.) <span>*</span></label>
+            <label>Price (Rs.) <span style="color:var(--red)">*</span></label>
             <input type="number" class="form-control" id="price" placeholder="850" min="0"/>
             <div class="form-hint">Enter 0 for free items</div>
           </div>
           <div class="form-group">
-            <label>Condition <span>*</span></label>
+            <label>Condition <span style="color:var(--red)">*</span></label>
             <select class="form-control" id="condition">
               <option value="">-- Select --</option>
-              <option>Brand New</option><option>Like New</option>
-              <option>Good</option><option>Used</option><option>For Parts</option>
+              <option value="Brand New">Brand New</option>
+              <option value="Like New">Like New</option>
+              <option value="Good">Good</option>
+              <option value="Used">Used</option>
+              <option value="For Parts">For Parts</option>
             </select>
           </div>
         </div>
         <div class="form-group">
-          <label>Description <span>*</span></label>
+          <label>Description <span style="color:var(--red)">*</span></label>
           <textarea class="form-control" id="desc" rows="5" maxlength="500"
             placeholder="Describe your item — condition, any defects, why you're selling, etc."
             oninput="document.getElementById('desc-cnt').textContent=this.value.length+'/500'"></textarea>
@@ -172,17 +140,19 @@
             <label>Campus Zone</label>
             <select class="form-control" id="zone">
               <option value="">Select zone</option>
-              <option>Block A</option><option>Block B</option><option>Library</option>
-              <option>Canteen</option><option>Cafeteria</option>
+              <option value="Block A">Block A</option>
+              <option value="Block B">Block B</option>
+              <option value="Library">Library</option>
+              <option value="Canteen">Canteen</option>
+              <option value="Cafeteria">Cafeteria</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Preferred Meet Time</label>
-            <select class="form-control" id="meettime">
-              <option>Anytime during campus hours</option>
-              <option>Morning (8am–12pm)</option>
-              <option>Afternoon (12pm–4pm)</option>
-              <option>Evening (4pm–6pm)</option>
+            <label>Academic Year</label>
+            <select class="form-control" id="seller-year">
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year" selected>2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
             </select>
           </div>
         </div>
@@ -195,16 +165,14 @@
       <!-- Step 3: Photos -->
       <div id="step3" style="display:none">
         <div class="form-group">
-          <label>Photos (up to 5)</label>
+          <label>Photos (up to 5) — optional</label>
           <div class="upload-zone" onclick="document.getElementById('img-input').click()">
             <span class="ico">📷</span>
             <p>Click to upload photos of your item</p>
             <p class="limit">JPG, PNG — max 5MB each · Up to 5 photos</p>
           </div>
           <input type="file" id="img-input" multiple accept="image/*" style="display:none" onchange="previewImgs(this)"/>
-          <div class="preview-imgs" id="img-preview">
-            <div class="prev-img">📚<span class="del">✕</span></div>
-          </div>
+          <div class="preview-imgs" id="img-preview"></div>
           <div class="form-hint" style="margin-top:8px">💡 Tip: Good photos get 3x more responses!</div>
         </div>
         <div class="nav-btns">
@@ -216,8 +184,9 @@
       <!-- Step 4: Contact & Submit -->
       <div id="step4" style="display:none">
         <div class="form-group">
-          <label>Your Name <span>*</span></label>
-          <input type="text" class="form-control" id="cname" placeholder="Full name" id="cname"/>
+          <label>Your Name <span style="color:var(--red)">*</span></label>
+          <!-- Fixed: removed duplicate id attribute -->
+          <input type="text" class="form-control" id="cname" placeholder="Full name"/>
         </div>
         <div class="row2">
           <div class="form-group">
@@ -225,7 +194,7 @@
             <input type="tel" class="form-control" id="phone" placeholder="07X XXX XXXX"/>
           </div>
           <div class="form-group">
-            <label>Email <span>*</span></label>
+            <label>Email <span style="color:var(--red)">*</span></label>
             <input type="email" class="form-control" id="email" placeholder="yourname@student.ac.lk"/>
           </div>
         </div>
@@ -238,7 +207,7 @@
         <div id="post-err" class="alert alert-warning" style="display:none">⚠️ Please fill in all required fields and agree to the terms.</div>
         <div class="nav-btns">
           <button class="btn btn-outline" onclick="goStep(3)">← Back</button>
-          <button class="btn btn-green" style="flex:1;padding:12px;font-size:15px" onclick="submitAd()">🚀 Post Ad Now — FREE!</button>
+          <button class="btn btn-green" style="flex:1;padding:12px;font-size:15px" id="submit-btn" onclick="submitAd()">🚀 Post Ad Now — FREE!</button>
         </div>
       </div>
     </div>
@@ -280,8 +249,8 @@
     <h2>Ad Posted Successfully!</h2>
     <p>Your listing is now live on campusMarket. Other students can see it right away!</p>
     <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="index.html" class="btn btn-primary btn-full">Back to Home</a>
-      <a href="post-ad.html" class="btn btn-outline btn-full" onclick="location.reload()">Post Another Ad</a>
+      <a href="listings.html" class="btn btn-primary btn-full">View All Listings</a>
+      <a href="post-ad.html" class="btn btn-outline btn-full">Post Another Ad</a>
     </div>
   </div>
 </div>
@@ -289,51 +258,65 @@
 <div id="footer-root"></div>
 <script src="components.js"></script>
 <script>
+// Supabase is now loaded before this script runs
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 document.getElementById('topbar-root').innerHTML = renderTopbar();
 document.getElementById('header-root').innerHTML = renderHeader();
 document.getElementById('footer-root').innerHTML = renderFooter();
 
-const user = JSON.parse(localStorage.getItem('cm_user')||'null');
+// Pre-fill contact fields if logged in
+const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
 if (user) {
-  setTimeout(()=>{
-    const cn = document.getElementById('cname'); if(cn) cn.value = user.name || '';
-    const em = document.getElementById('email'); if(em) em.value = user.email || '';
+  setTimeout(() => {
+    const cn = document.getElementById('cname'); if (cn) cn.value = user.name || '';
+    const em = document.getElementById('email'); if (em) em.value = user.email || '';
   }, 100);
 }
 
 function goStep(n) {
   const err = document.getElementById('post-err');
-  if(err) err.style.display='none';
-  if (n===2 && !document.getElementById('cat').value) {
+  if (err) err.style.display = 'none';
+
+  if (n === 2 && !document.getElementById('cat').value) {
     alert('Please select a category.'); return;
   }
-  if (n===3) {
-    if(!document.getElementById('title').value.trim()){alert('Please enter an ad title.');return;}
-    if(!document.getElementById('price').value && document.getElementById('listing-type').value==='sell'){alert('Please enter a price.');return;}
-    if(!document.getElementById('desc').value.trim()){alert('Please write a description.');return;}
+  if (n === 3) {
+    if (!document.getElementById('title').value.trim()) { alert('Please enter an ad title.'); return; }
+    const listType = document.getElementById('listing-type').value;
+    const priceVal = document.getElementById('price').value;
+    if ((listType === 'For Sale' || listType === 'Wanted') && priceVal === '') {
+      alert('Please enter a price (enter 0 if free).'); return;
+    }
+    if (!document.getElementById('desc').value.trim()) { alert('Please write a description.'); return; }
     updatePreview();
   }
-  for(let i=1;i<=4;i++){
-    document.getElementById('step'+i).style.display = i===n?'block':'none';
-    const d = document.getElementById('dot'+i);
-    d.className = 'si-dot' + (i<n?' done':i===n?' active':'');
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('step' + i).style.display = i === n ? 'block' : 'none';
+    const d = document.getElementById('dot' + i);
+    d.className = 'si-dot' + (i < n ? ' done' : i === n ? ' active' : '');
   }
 }
 
 function selType(el, val) {
-  document.querySelectorAll('.price-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.price-type-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   document.getElementById('listing-type').value = val;
-  if(val==='free'||val==='wanted') { document.getElementById('price').value='0'; document.getElementById('price').disabled=true; }
-  else document.getElementById('price').disabled=false;
+  const priceInput = document.getElementById('price');
+  if (val === 'Free') { priceInput.value = '0'; priceInput.disabled = true; }
+  else if (val === 'Swap') { priceInput.value = '0'; priceInput.disabled = true; }
+  else { priceInput.disabled = false; priceInput.value = ''; }
 }
 
 function updateCatHint() {
   const hints = {
-    'Textbooks':'Great for selling or swapping used textbooks with fellow students.',
-    'Electronics':'Calculators, laptops, accessories — always in demand!',
-    'Services':'Offer your skills: coding help, design, tutoring, etc.',
-    'Free Stuff':'Give away items you no longer need — great karma! 😊',
+    textbooks: 'Great for selling or swapping used textbooks with fellow students.',
+    electronics: 'Calculators, laptops, accessories — always in demand!',
+    services: 'Offer your skills: coding help, design, tutoring, etc.',
+    free: 'Give away items you no longer need — great karma! 😊',
   };
   const cat = document.getElementById('cat').value;
   document.getElementById('cat-hint').textContent = hints[cat] || 'Choose the most relevant category for your item.';
@@ -342,34 +325,70 @@ function updateCatHint() {
 function updatePreview() {
   document.getElementById('prev-title').textContent = document.getElementById('title').value || 'Your ad title';
   const price = document.getElementById('price').value;
-  document.getElementById('prev-price').textContent = price ? 'Rs. ' + price : 'Free';
-  const cat = document.getElementById('cat').value;
-  const zone = document.getElementById('zone').value;
-  document.getElementById('prev-cat').textContent = (cat||'Category') + ' · ' + (zone||'Campus');
+  document.getElementById('prev-price').textContent = price && price !== '0' ? 'Rs. ' + price : 'Free';
+  const cat = document.getElementById('cat').options[document.getElementById('cat').selectedIndex]?.text || 'Category';
+  const zone = document.getElementById('zone').value || 'Campus';
+  document.getElementById('prev-cat').textContent = cat + ' · ' + zone;
 }
 
 function previewImgs(input) {
   const prev = document.getElementById('img-preview');
   prev.innerHTML = '';
-  Array.from(input.files).slice(0,5).forEach((f,i) => {
+  Array.from(input.files).slice(0, 5).forEach(f => {
     const div = document.createElement('div');
     div.className = 'prev-img';
     const img = document.createElement('img');
     img.src = URL.createObjectURL(f);
     img.style = 'width:100%;height:100%;object-fit:cover;border-radius:7px';
     const del = document.createElement('span');
-    del.className='del'; del.textContent='✕'; del.onclick=()=>div.remove();
+    del.className = 'del'; del.textContent = '✕'; del.onclick = () => div.remove();
     div.appendChild(img); div.appendChild(del); prev.appendChild(div);
   });
 }
 
-function submitAd() {
-  const name = document.getElementById('cname')?.value;
-  const email = document.getElementById('email')?.value;
+async function submitAd() {
+  const name  = document.getElementById('cname').value.trim();
+  const email = document.getElementById('email').value.trim();
   const terms = document.getElementById('terms').checked;
-  const err = document.getElementById('post-err');
-  if(!name||!email||!terms){err.style.display='flex';return;}
-  document.getElementById('success-overlay').style.display='flex';
+  const err   = document.getElementById('post-err');
+  err.style.display = 'none';
+
+  if (!name || !email || !terms) {
+    err.textContent = '⚠️ Please fill in your name, email and agree to the terms.';
+    err.style.display = 'flex';
+    return;
+  }
+
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ Posting...';
+
+  // Build the row that matches your Supabase listings table schema
+  const adData = {
+    title:        document.getElementById('title').value.trim(),
+    description:  document.getElementById('desc').value.trim(),
+    price:        parseFloat(document.getElementById('price').value) || 0,
+    category:     document.getElementById('cat').value,          // lowercase key e.g. "textbooks"
+    zone:         document.getElementById('zone').value,
+    item_condition: document.getElementById('condition').value,
+    listing_type: document.getElementById('listing-type').value, // "For Sale" / "Swap" etc.
+    seller_name:  name,
+    seller_phone: document.getElementById('phone').value.trim(),
+    seller_year:  document.getElementById('seller-year').value,
+    seller_id:    user ? user.id : null,
+  };
+
+  const { data, error } = await supabaseClient.from('listings').insert([adData]);
+
+  if (error) {
+    console.error('Supabase insert error:', error);
+    err.textContent = '❌ Error posting ad: ' + error.message;
+    err.style.display = 'flex';
+    submitBtn.disabled = false;
+    submitBtn.textContent = '🚀 Post Ad Now — FREE!';
+  } else {
+    document.getElementById('success-overlay').style.display = 'flex';
+  }
 }
 </script>
 </body>
