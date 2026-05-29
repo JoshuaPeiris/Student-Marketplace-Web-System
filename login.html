@@ -1,156 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Login — campusMarket</title>
-<link rel="stylesheet" href="style.css"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // Initialize the Supabase client connection
-  const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — campusMarket</title>
+  <link rel="stylesheet" href="style.css"/>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    // 2. Initialize the Supabase client connection
+    const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function handleLogin(event) {
-    if (event) event.preventDefault(); // Prevents the page from reloading out from under us
+    // 3. Centralized Real Live Login Function
+    async function executeLiveLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      const errBox = document.getElementById('err-msg');
+      const sucBox = document.getElementById('suc-msg');
+      
+      // Reset visual alert states
+      errBox.style.display = 'none'; 
+      sucBox.style.display = 'none';
 
-    // ⚠️ IMPORTANT: Change these IDs to match the exact "id" attributes on your HTML input tags!
-    const email = document.getElementById('email-input').value; 
-    const password = document.getElementById('password-input').value; 
+      if (!email || !password) {
+        errBox.textContent = '⚠️ Please fill in all fields.';
+        errBox.style.display = 'block';
+        return;
+      }
 
-    if (!email || !password) {
-      alert("Please fill in all fields.");
-      return;
+      if (!email.includes('@')) {
+        errBox.textContent = '⚠️ Please enter a valid student email address.';
+        errBox.style.display = 'block';
+        return;
+      }
+
+      // Ping Supabase Live Authorization Router
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        // Show real database message errors directly inside your red alert element box
+        errBox.textContent = `❌ Login Error: ${error.message}`;
+        errBox.style.display = 'block';
+      } else {
+        // Build the correct payload shape that components.js expects to update layouts
+        const userPayload = {
+          id: data.user.id,
+          name: data.user.user_metadata.full_name || email.split('@')[0],
+          email: data.user.email,
+          year: '2nd Year',
+          joined: '2025'
+        };
+
+        // Inject profile into localStorage state
+        localStorage.setItem('cm_user', JSON.stringify(userPayload));
+
+        sucBox.style.display = 'block';
+        
+        // Wait 1.2 seconds so user sees your nice CSS success transition popup animation
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      }
     }
 
-    // Ping Supabase to verify user credentials
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password
+    // Capture "Enter Key" events anywhere on the window page context for seamless desktop navigation
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Enter') executeLiveLogin(); 
     });
+  </script>
 
-    if (error) {
-      alert(`❌ Login Error: ${error.message}`);
-    } else {
-      // Create the exact user profile structural object that components.js expects
-      const userPayload = {
-        id: data.user.id,
-        name: data.user.user_metadata.full_name || email.split('@')[0],
-        email: data.user.email
-      };
-
-      // Store the user payload in localStorage so your headers dynamically update immediately
-      localStorage.setItem('cm_user', JSON.stringify(userPayload));
-
-      alert("✅ Login successful! Redirecting...");
-      window.location.href = 'index.html';
-    }
-  }
-
-  // ⚠️ IMPORTANT: Change this ID to match your actual HTML <form> element or login <button>
-  document.getElementById('login-form').addEventListener('submit', handleLogin);
-</script>
-<style>
-body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
-.auth-page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px}
-.auth-card{background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.2);width:100%;max-width:440px;overflow:hidden}
-.auth-header{background:var(--primary);padding:28px;text-align:center;color:#fff}
-.auth-header .logo{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px}
-.auth-header .logo span{color:var(--accent)}
-.auth-header p{font-size:13px;opacity:.8}
-.auth-body{padding:28px}
-.auth-body h2{font-family:'Poppins',sans-serif;font-size:20px;font-weight:600;margin-bottom:6px;color:var(--text)}
-.auth-body .sub{font-size:13px;color:var(--text-muted);margin-bottom:22px}
-.divider-or{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:var(--text-light)}
-.divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--border)}
-.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);margin-bottom:10px;transition:all .15s}
-.social-btn:hover{border-color:var(--primary);background:#f5f7ff}
-.forgot{font-size:12px;color:var(--primary);float:right;margin-top:-12px;margin-bottom:16px;cursor:pointer;font-weight:600}
-.forgot:hover{text-decoration:underline}
-.auth-footer{text-align:center;font-size:13px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
-.auth-footer a{color:var(--primary);font-weight:700}
-.show-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--text-muted);user-select:none}
-.input-icon{position:relative}
-.error-msg{background:#fce4ec;color:#c62828;font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:14px;border:1px solid #f48fb1;display:none}
-.success-msg{background:var(--green-light);color:var(--green);font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:14px;border:1px solid #a5d6a7;display:none}
-</style>
+  <style>
+    body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
+    .auth-page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px}
+    .auth-card{background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.2);width:100%;max-width:440px;overflow:hidden}
+    .auth-header{background:var(--primary);padding:28px;text-align:center;color:#fff}
+    .auth-header .logo{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px}
+    .auth-header .logo span{color:var(--accent)}
+    .auth-header p{font-size:13px;opacity:.8}
+    .auth-body{padding:28px}
+    .auth-body h2{font-family:'Poppins',sans-serif;font-size:20px;font-weight:600;margin-bottom:6px;color:var(--text)}
+    .auth-body .sub{font-size:13px;color:var(--text-muted);margin-bottom:22px}
+    .divider-or{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:var(--text-light)}
+    .divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--border)}
+    .social-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);margin-bottom:10px;transition:all .15s}
+    .social-btn:hover{border-color:var(--primary);background:#f5f7ff}
+    .forgot{font-size:12px;color:var(--primary);float:right;margin-top:-12px;margin-bottom:16px;cursor:pointer;font-weight:600}
+    .forgot:hover{text-decoration:underline}
+    .auth-footer{text-align:center;font-size:13px;color:var(--text-muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+    .auth-footer a{color:var(--primary);font-weight:700}
+    .show-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:var(--text-muted);user-select:none}
+    .input-icon{position:relative}
+    .error-msg{background:#fce4ec;color:#c62828;font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:14px;border:1px solid #f48fb1;display:none}
+    .success-msg{background:var(--green-light);color:var(--green);font-size:12px;padding:10px 14px;border-radius:7px;margin-bottom:14px;border:1px solid #a5d6a7;display:none}
+  </style>
 </head>
 <body>
-<div style="background:var(--primary-dark);padding:10px 24px;display:flex;align-items:center;justify-content:space-between">
-  <a href="index.html" class="logo" style="font-family:Poppins,sans-serif;font-size:18px;font-weight:700;color:#fff">campus<span style="color:var(--accent)">Market</span></a>
-  <a href="index.html" style="color:rgba(255,255,255,.7);font-size:12px">← Back to Marketplace</a>
-</div>
 
-<div class="auth-page">
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="logo">campus<span>Market</span></div>
-      <p>🎓 HNDIT 2nd Semester — Student Marketplace</p>
-    </div>
-    <div class="auth-body">
-      <h2>Welcome back!</h2>
-      <p class="sub">Sign in to your student account</p>
+  <div style="background:var(--primary-dark);padding:10px 24px;display:flex;align-items:center;justify-content:space-between">  
+    <a href="index.html" class="logo" style="font-family:Poppins,sans-serif;font-size:18px;font-weight:700;color:#fff">campus<span style="color:var(--accent)">Market</span></a>  
+    <a href="index.html" style="color:rgba(255,255,255,.7);font-size:12px">← Back to Marketplace</a>
+  </div>
 
-      <div class="error-msg" id="err-msg">⚠️ Invalid email or password. Please try again.</div>
-      <div class="success-msg" id="suc-msg">✅ Login successful! Redirecting...</div>
+  <div class="auth-page">  
+    <div class="auth-card">    
+      <div class="auth-header">      
+        <div class="logo">campus<span>Market</span></div>      
+        <p>🎓 HNDIT 2nd Semester — Student Marketplace</p>    
+      </div>    
+      <div class="auth-body">      
+        <h2>Welcome back!</h2>      
+        <p class="sub">Sign in to your student account</p>
 
-      <div class="form-group">
-        <label>Student Email <span>*</span></label>
-        <div class="input-icon">
-          <span class="icon">📧</span>
-          <input type="email" class="form-control" id="email" placeholder="yourname@student.ac.lk" autocomplete="email"/>
+        <div class="error-msg" id="err-msg"></div>      
+        <div class="success-msg" id="suc-msg">✅ Login successful! Redirecting...</div>
+
+        <div class="form-group">        
+          <label>Student Email <span>*</span></label>        
+          <div class="input-icon">          
+            <span class="icon">📧</span>          
+            <input type="email" class="form-control" id="email" placeholder="yourname@student.ac.lk" autocomplete="email"/>        
+          </div>      
+        </div>      
+        
+        <div class="form-group">        
+          <label>Password <span>*</span></label>        
+          <div class="input-icon" style="position:relative">          
+            <span class="icon">🔒</span>          
+            <input type="password" class="form-control" id="password" placeholder="Enter your password"/>          
+            <span class="show-pw" onclick="togglePw()">👁</span>        
+          </div>      
+        </div>      
+        
+        <a class="forgot" href="#">Forgot password?</a>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">        
+          <input type="checkbox" id="remember" style="width:16px;height:16px;cursor:pointer"/>        
+          <label for="remember" style="font-size:13px;cursor:pointer;font-weight:400">Remember me on this device</label>      
         </div>
-      </div>
-      <div class="form-group">
-        <label>Password <span>*</span></label>
-        <div class="input-icon" style="position:relative">
-          <span class="icon">🔒</span>
-          <input type="password" class="form-control" id="password" placeholder="Enter your password"/>
-          <span class="show-pw" onclick="togglePw()">👁</span>
-        </div>
-      </div>
-      <a class="forgot" href="#">Forgot password?</a>
 
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
-        <input type="checkbox" id="remember" style="width:16px;height:16px;cursor:pointer"/>
-        <label for="remember" style="font-size:13px;cursor:pointer;font-weight:400">Remember me on this device</label>
-      </div>
-
-      <button class="btn btn-primary btn-full" style="padding:12px;font-size:15px" onclick="doLogin()">Login to Account</button>
-
-      <div class="divider-or">or</div>
-      <button class="social-btn">🎓 Login with Student ID Portal</button>
-
-      <div class="auth-footer">
-        Don't have an account? <a href="register.html">Register here</a>
-      </div>
+        <button class="btn btn-primary btn-full" style="padding:12px;font-size:15px" onclick="executeLiveLogin()">Login to Account</button>
+        
+        <div class="divider-or">or</div>      
+        <button class="social-btn" onclick="alert('Student portal OAuth integration is a premium enterprise feature!')">🎓 Login with Student ID Portal</button>      
+        
+        <div class="auth-footer">        
+          Don't have an account? <a href="register.html">Register here</a>      
+        </div>    
+      </div>  
     </div>
   </div>
-</div>
 
-<script src="components.js"></script>
-<script>
-function togglePw() {
-  const pw = document.getElementById('password');
-  pw.type = pw.type === 'password' ? 'text' : 'password';
-}
-function doLogin() {
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value;
-  const err = document.getElementById('err-msg');
-  const suc = document.getElementById('suc-msg');
-  err.style.display = 'none'; suc.style.display = 'none';
-  if (!email || !pass) { err.textContent = '⚠️ Please fill in all fields.'; err.style.display = 'block'; return; }
-  if (!email.includes('@')) { err.textContent = '⚠️ Please enter a valid email address.'; err.style.display = 'block'; return; }
-  // Demo login — accept any credentials
-  const name = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-  const user = { name, email, year:'2nd Year', index:'HND2250'+Math.floor(Math.random()*99), joined:'2025' };
-  localStorage.setItem('cm_user', JSON.stringify(user));
-  suc.style.display = 'block';
-  setTimeout(() => window.location.href = 'index.html', 1200);
-}
-document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-</script>
+  <script src="components.js"></script>
+  <script>
+    // Password visibility control script
+    function togglePw() {  
+      const pw = document.getElementById('password');  
+      pw.type = pw.type === 'password' ? 'text' : 'password';
+    }
+  </script>
 </body>
 </html>
