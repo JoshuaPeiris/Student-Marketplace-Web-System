@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
 <link rel="icon" type="svg" href="favicon.svg"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 .hero{background:linear-gradient(135deg,#1a237e 0%,#283593 50%,#1565c0 100%);color:#fff;padding:32px 24px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.04)}
@@ -26,7 +26,7 @@
 .featured-strip{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13px;color:#5d4037}
 .featured-strip strong{color:#e65100}
 .featured-strip a{color:var(--primary);font-weight:700;margin-left:auto;white-space:nowrap}
-.promo-strip{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green)}
+.promo-strip{background:var(--green-light);border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin:16px 0;display:flex;align-items:center;gap:10px;font-size:13px;color:#green}
 .promo-strip a{color:var(--green);font-weight:700;margin-left:auto}
 .quick-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;margin:18px 0}
 .qcat{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s}
@@ -114,25 +114,20 @@
       <div id="sidebar-account"></div>
     </div>
   </div>
-
   <div>
     <div class="featured-strip">
       <span>⭐</span>
       <span><strong>Featured:</strong> 2nd Year HNDIT Full Note Bundle — discounted for Batch 2025!</span>
       <a href="listing-detail.html?id=3">View →</a>
     </div>
-
     <div class="section-hd"><h2>🕐 Latest Listings</h2><a href="listings.html">See all →</a></div>
     <div class="listings-grid" id="latest-grid"></div>
-
     <div class="promo-strip">
       🛠️ <span><strong>Need project help?</strong> 3rd year students offering web dev, circuit design &amp; poster services.</span>
       <a href="listings.html?cat=services">Browse Services →</a>
     </div>
-
     <div class="section-hd" style="margin-top:8px"><h2>📚 Popular Textbooks</h2><a href="listings.html?cat=textbooks">See all →</a></div>
     <div class="listings-grid" id="books-grid"></div>
-
     <div class="pagination" style="margin-top:20px">
       <a href="#" class="active">1</a><a href="#">2</a><a href="#">3</a><a href="#">...</a><a href="#">12</a>
     </div>
@@ -142,71 +137,58 @@
 <div id="footer-root"></div>
 <script src="components.js"></script>
 <script>
-  
-    // Initialize Supabase
-    const supabase = window.supabase.createClient(
-        'https://iyhmqmlcrypjbfhwbnjk.supabase.co', 
-        'YOUR_SUPABASE_ANON_KEY_HERE' // Make sure to use your actual Key from post-ad.html
-    );
+  const supabase = window.supabase.createClient(
+      'https://iyhmqmlcrypjbfhwbnjk.supabase.co', 
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro'
+  );
 
-    async function syncCategoryCounts() {
-        // ... rest of your syncCategoryCounts code ...
   async function syncCategoryCounts() {
-    // 1. Fetch all listings from the 'listings' table
     const { data, error } = await supabase.from('listings').select('category');
-    
-    if (error) {
-        console.error("Error fetching counts:", error);
-        return;
-    }
+    if (error) { console.error("Error:", error); return; }
 
-    // 2. Define the categories you have
     const cats = ['textbooks', 'notes', 'electronics', 'stationery', 'uniforms', 'projects', 'services', 'food', 'lostfound', 'free'];
-
-    // 3. Update each ID
     cats.forEach(cat => {
         const count = data.filter(item => item.category && item.category.toLowerCase().includes(cat)).length;
         const el = document.getElementById(`count-${cat}`);
         if (el) el.textContent = count + ' ads';
     });
-}
+  }
 
-// 4. Run it when the page loads
-syncCategoryCounts();
-document.getElementById('topbar-root').innerHTML = renderTopbar();
-document.getElementById('header-root').innerHTML = renderHeader('All');
-document.getElementById('footer-root').innerHTML = renderFooter();
+  syncCategoryCounts();
+  document.getElementById('topbar-root').innerHTML = renderTopbar();
+  document.getElementById('header-root').innerHTML = renderHeader('All');
+  document.getElementById('footer-root').innerHTML = renderFooter();
 
-const CATS = [
-  {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
-  {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
-  {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
-];
-document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
-  `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
-    <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
+  const CATS = [
+    {ico:'📚',lbl:'Textbooks',cnt:84},{ico:'📝',lbl:'Notes',cnt:57},{ico:'💻',lbl:'Electronics',cnt:41},
+    {ico:'✏️',lbl:'Stationery',cnt:36},{ico:'👕',lbl:'Uniforms',cnt:22},{ico:'🔧',lbl:'Project Items',cnt:18},
+    {ico:'🛠️',lbl:'Services',cnt:15},{ico:'🍱',lbl:'Food & Snacks',cnt:12},{ico:'🔍',lbl:'Lost & Found',cnt:9},{ico:'🎁',lbl:'Free Stuff',cnt:8}
+  ];
+  document.getElementById('sidebar-cats').innerHTML = CATS.map(c =>
+    `<div class="cat-item" onclick="window.location='listings.html?cat=${c.lbl.toLowerCase()}'">
+      <span class="ico">${c.ico}</span>${c.lbl}<span class="cnt">${c.cnt}</span></div>`).join('');
 
-const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
-document.getElementById('sidebar-account').innerHTML = user
-  ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
-     <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
-     <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
-  : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
-     <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
-     <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
+  const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
+  document.getElementById('sidebar-account').innerHTML = user
+    ? `<div class="cat-item" onclick="window.location='profile.html'"><span class="ico">📦</span>My Listings</div>
+       <div class="cat-item" onclick="window.location='messages.html'"><span class="ico">💬</span>Messages</div>
+       <div class="cat-item" onclick="window.location='profile.html#saved'"><span class="ico">⭐</span>Saved Items</div>`
+    : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Sign in to save items and manage listings.</div>
+       <a href="login.html" class="btn btn-primary btn-full btn-sm">Login</a>
+       <a href="register.html" class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Register</a>`;
 
-document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
-document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
+  document.getElementById('latest-grid').innerHTML = LISTINGS.slice(0,8).map(renderListingCard).join('');
+  document.getElementById('books-grid').innerHTML = LISTINGS.filter(l=>l.cat==='Textbooks').map(renderListingCard).join('');
 
-function applyFilter() {
-  const min = document.getElementById('f-min').value;
-  const q = min ? `?min=${min}&max=${document.getElementById('f-max').value}&cond=${document.getElementById('f-cond').value}` : '';
-  window.location.href = 'listings.html' + q;
-}
-function clearFilter() {
-  ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
-  ['f-cond','f-year','f-type'].forEach(id => document.getElementById(id).value='');
-}
+  function applyFilter() {
+    const min = document.getElementById('f-min').value;
+    const q = min ? `?min=${min}&max=${document.getElementById('f-max').value}&cond=${document.getElementById('f-cond').value}` : '';
+    window.location.href = 'listings.html' + q;
+  }
+  function clearFilter() {
+    ['f-min','f-max'].forEach(id => document.getElementById(id).value='');
+    ['f-cond','f-year','f-type'].forEach(id => document.getElementById(id).value='');
+  }
 </script>
 </body>
 </html>
