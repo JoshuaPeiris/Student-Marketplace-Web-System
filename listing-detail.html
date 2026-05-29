@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Listing Detail — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 .layout{max-width:1140px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:1fr 320px;gap:22px}
 .img-gallery{background:#f5f7fa;border:1px solid var(--border);border-radius:12px;height:320px;display:flex;align-items:center;justify-content:center;font-size:100px;position:relative;margin-bottom:12px}
@@ -52,12 +53,8 @@
 
 <div class="layout">
   <div>
-    <div class="img-gallery" id="main-img">📚</div>
-    <div class="gallery-thumbs">
-      <div class="thumb active">📚</div>
-      <div class="thumb">📖</div>
-      <div class="thumb">📷</div>
-    </div>
+    <div class="img-gallery" id="main-img">⏳</div>
+    <div class="gallery-thumbs" id="gallery-thumbs"></div>
 
     <div class="detail-card" style="margin-top:18px">
       <span id="det-badge" class="badge badge-new" style="margin-bottom:10px;display:inline-block">NEW</span>
@@ -71,7 +68,7 @@
     <div class="detail-card">
       <h4 style="font-size:13px;font-weight:700;margin-bottom:12px">📍 Meeting Location</h4>
       <div id="det-zone-map" style="background:#e8eaf6;border-radius:8px;height:120px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--primary);font-weight:600">
-        📍 Block A — Main Corridor
+        📍 Loading...
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Always meet in public campus areas. See safety tips below.</p>
     </div>
@@ -86,16 +83,16 @@
     <div class="seller-card">
       <h4>Seller Information</h4>
       <div class="seller-info">
-        <div class="avatar" id="seller-avatar">KP</div>
+        <div class="avatar" id="seller-avatar">?</div>
         <div>
-          <div class="seller-name" id="seller-name">Kamal Perera</div>
-          <div class="seller-sub" id="seller-sub">2nd Year · Block A</div>
+          <div class="seller-name" id="seller-name">Loading...</div>
+          <div class="seller-sub" id="seller-sub">—</div>
         </div>
       </div>
       <div class="seller-stats">
-        <div class="s-stat"><div class="num">12</div><div class="lbl">Listings</div></div>
-        <div class="s-stat"><div class="num">28</div><div class="lbl">Sold</div></div>
-        <div class="s-stat"><div class="num">⭐ 4.8</div><div class="lbl">Rating</div></div>
+        <div class="s-stat"><div class="num" id="seller-listings">—</div><div class="lbl">Listings</div></div>
+        <div class="s-stat"><div class="num">—</div><div class="lbl">Sold</div></div>
+        <div class="s-stat"><div class="num">⭐ —</div><div class="lbl">Rating</div></div>
       </div>
       <div class="contact-btns">
         <button class="btn btn-primary btn-full" onclick="contactSeller()">💬 Send Message</button>
@@ -117,9 +114,9 @@
     <div class="detail-card" style="margin-top:14px">
       <h4 style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Ad Details</h4>
       <table style="width:100%;font-size:12px;border-collapse:collapse">
-        <tr><td style="padding:5px 0;color:var(--text-muted)">Posted</td><td style="text-align:right;font-weight:600" id="ad-posted">2 hrs ago</td></tr>
-        <tr><td style="padding:5px 0;color:var(--text-muted)">Views</td><td style="text-align:right;font-weight:600">142</td></tr>
-        <tr><td style="padding:5px 0;color:var(--text-muted)">Ad ID</td><td style="text-align:right;font-weight:600" id="ad-id">#CM001</td></tr>
+        <tr><td style="padding:5px 0;color:var(--text-muted)">Posted</td><td style="text-align:right;font-weight:600" id="ad-posted">—</td></tr>
+        <tr><td style="padding:5px 0;color:var(--text-muted)">Condition</td><td style="text-align:right;font-weight:600" id="ad-cond">—</td></tr>
+        <tr><td style="padding:5px 0;color:var(--text-muted)">Ad ID</td><td style="text-align:right;font-weight:600" id="ad-id">—</td></tr>
         <tr><td style="padding:5px 0;color:var(--text-muted)">Category</td><td style="text-align:right;font-weight:600" id="ad-cat">—</td></tr>
       </table>
     </div>
@@ -135,49 +132,139 @@ document.getElementById('topbar-root').innerHTML = renderTopbar();
 document.getElementById('header-root').innerHTML = renderHeader();
 document.getElementById('footer-root').innerHTML = renderFooter();
 
-const params = new URLSearchParams(location.search);
-const id = parseInt(params.get('id')) || 1;
-const listing = LISTINGS.find(l => l.id === id) || LISTINGS[0];
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-document.title = listing.title + ' — campusMarket';
-document.getElementById('bc-title').textContent = listing.title.substring(0,30)+'...';
-document.getElementById('main-img').textContent = listing.emoji;
-document.getElementById('det-title').textContent = listing.title;
-document.getElementById('det-price').textContent = listing.price;
-document.getElementById('det-desc').textContent = listing.desc + ' Contact me via message for more details. Available for pickup anytime during campus hours.';
-document.getElementById('det-badge').textContent = listing.badge.toUpperCase();
-document.getElementById('det-badge').className = 'badge badge-' + listing.badge;
-document.getElementById('ad-posted').textContent = listing.time;
-document.getElementById('ad-id').textContent = '#CM00' + listing.id;
-document.getElementById('ad-cat').textContent = listing.cat;
-document.getElementById('det-zone-map').innerHTML = `📍 ${listing.zone} — Suggested Meet Point`;
+const urlParams = new URLSearchParams(location.search);
+const listingId = urlParams.get('id');
 
-document.getElementById('det-meta').innerHTML = [
-  {ico:'📍',lbl:listing.zone},{ico:'🕐',lbl:listing.time},
-  {ico:'🎓',lbl:listing.year},{ico:'📦',lbl:listing.cat}
-].map(m=>`<div class="meta-chip"><span class="ico">${m.ico}</span>${m.lbl}</div>`).join('');
+let currentListing = null;
 
-const initials = listing.seller.split(' ').map(w=>w[0]).join('').substring(0,2);
-document.getElementById('seller-avatar').textContent = initials;
-document.getElementById('seller-name').textContent = listing.seller;
-document.getElementById('seller-sub').textContent = listing.year + ' · ' + listing.zone;
+async function loadListing() {
+  let listing = null;
 
-const related = LISTINGS.filter(l => l.cat === listing.cat && l.id !== listing.id).slice(0,4);
-document.getElementById('related-grid').innerHTML = related.map(renderListingCard).join('');
+  // Try to load from DB first (UUID or numeric ID)
+  if (listingId) {
+    const { data, error } = await supabaseClient
+      .from('listings')
+      .select('*')
+      .eq('id', listingId)
+      .single();
+
+    if (!error && data) {
+      listing = normaliseListing(data);
+      currentListing = data; // keep raw for phone number etc.
+    }
+  }
+
+  // Fall back to sample LISTINGS array
+  if (!listing) {
+    const id = parseInt(listingId) || 1;
+    const sample = LISTINGS.find(l => l.id === id) || LISTINGS[0];
+    listing = normaliseListing(sample);
+    currentListing = sample;
+  }
+
+  renderDetail(listing);
+}
+
+function renderDetail(l) {
+  document.title = l.title + ' — campusMarket';
+  document.getElementById('bc-title').textContent = l.title.substring(0, 40) + (l.title.length > 40 ? '...' : '');
+  document.getElementById('main-img').textContent = l.emoji;
+  document.getElementById('det-title').textContent = l.title;
+
+  // Price display
+  document.getElementById('det-price').textContent = l.price;
+
+  document.getElementById('det-desc').textContent =
+    (l.desc || l.description || 'No description provided.') +
+    ' Contact me via message for more details. Available for pickup anytime during campus hours.';
+
+  // Badge
+  const badgeEl = document.getElementById('det-badge');
+  badgeEl.textContent = (l.badge || 'new').toUpperCase();
+  badgeEl.className = 'badge badge-' + (l.badge || 'new');
+
+  // Meta chips
+  document.getElementById('det-meta').innerHTML = [
+    {ico:'📍', lbl: l.zone || 'Campus'},
+    {ico:'🕐', lbl: l.time || 'Recently'},
+    {ico:'🎓', lbl: l.year || '—'},
+    {ico:'📦', lbl: l.cat || l.category || 'Other'}
+  ].map(m => `<div class="meta-chip"><span class="ico">${m.ico}</span>${m.lbl}</div>`).join('');
+
+  // Ad details table
+  document.getElementById('ad-posted').textContent = l.time || 'Recently';
+  document.getElementById('ad-cond').textContent = currentListing?.item_condition || '—';
+  document.getElementById('ad-id').textContent = '#CM' + String(l.id).substring(0, 8);
+  document.getElementById('ad-cat').textContent = l.cat || l.category || '—';
+
+  // Zone map
+  document.getElementById('det-zone-map').innerHTML = `📍 ${l.zone || 'Campus'} — Suggested Meet Point`;
+
+  // Seller info
+  const sellerName = l.seller || currentListing?.seller_name || 'Student';
+  const initials = sellerName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  document.getElementById('seller-avatar').textContent = initials;
+  document.getElementById('seller-name').textContent = sellerName;
+  document.getElementById('seller-sub').textContent = (l.year || currentListing?.seller_year || '—') + ' · ' + (l.zone || '—');
+
+  // Gallery thumbs
+  document.getElementById('gallery-thumbs').innerHTML = `
+    <div class="thumb active">${l.emoji}</div>
+    <div class="thumb">📷</div>
+    <div class="thumb">📷</div>`;
+
+  // Related listings (same category, try DB listings first)
+  loadRelated(l);
+}
+
+async function loadRelated(l) {
+  const cat = l.cat || l.category || '';
+  const { data } = await supabaseClient
+    .from('listings')
+    .select('*')
+    .ilike('category', cat)
+    .neq('id', l.id)
+    .limit(4);
+
+  let related = [];
+  if (data && data.length > 0) {
+    related = data;
+  } else {
+    // Fallback to sample data
+    related = LISTINGS.filter(s => s.cat === cat && s.id !== l.id).slice(0, 4);
+  }
+  document.getElementById('related-grid').innerHTML = related.map(renderListingCard).join('');
+}
 
 function contactSeller() {
-  const user = JSON.parse(localStorage.getItem('cm_user')||'null');
+  const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
   if (!user) { window.location.href = 'login.html'; return; }
-  window.location.href = 'messages.html?to=' + encodeURIComponent(listing.seller);
+  const name = currentListing?.seller_name || 'Seller';
+  window.location.href = 'messages.html?to=' + encodeURIComponent(name);
 }
+
 function callSeller() {
-  alert('📞 Seller contact: 07X XXX XXXX\n\nAlways meet on campus for safety!');
+  const phone = currentListing?.seller_phone || '07X XXX XXXX';
+  alert('📞 Seller contact: ' + phone + '\n\nAlways meet on campus for safety!');
 }
+
 function toggleDetailFav() {
   const btn = document.getElementById('fav-btn');
-  if (btn.textContent.includes('♡')) { btn.textContent = '♥ Saved to Favourites'; btn.style.color='var(--red)'; }
-  else { btn.textContent = '♡ Save to Favourites'; btn.style.color=''; }
+  if (btn.textContent.includes('♡')) {
+    btn.textContent = '♥ Saved to Favourites';
+    btn.style.color = 'var(--red)';
+  } else {
+    btn.textContent = '♡ Save to Favourites';
+    btn.style.color = '';
+  }
 }
+
+// Boot
+loadListing();
 </script>
 </body>
 </html>
