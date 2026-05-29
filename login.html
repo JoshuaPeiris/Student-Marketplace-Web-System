@@ -7,74 +7,75 @@
   <link rel="stylesheet" href="style.css"/>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // 2. Initialize connection using 'supabaseClient' to prevent naming conflicts
+  const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
   
-  <script>
-    // 2. Initialize the Supabase client connection
-    const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co"; 
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 3. Centralized Real Live Login Function
-    async function executeLiveLogin() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      
-      const errBox = document.getElementById('err-msg');
-      const sucBox = document.getElementById('suc-msg');
-      
-      // Reset visual alert states
-      errBox.style.display = 'none'; 
-      sucBox.style.display = 'none';
+  // 3. Login execution function
+  async function executeLiveLogin() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    
+    const errBox = document.getElementById('err-msg');
+    const sucBox = document.getElementById('suc-msg');
+    
+    // Clear previous alerts
+    errBox.style.display = 'none'; 
+    sucBox.style.display = 'none';
 
-      if (!email || !password) {
-        errBox.textContent = '⚠️ Please fill in all fields.';
-        errBox.style.display = 'block';
-        return;
-      }
-
-      if (!email.includes('@')) {
-        errBox.textContent = '⚠️ Please enter a valid student email address.';
-        errBox.style.display = 'block';
-        return;
-      }
-
-      // Ping Supabase Live Authorization Router
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-      if (error) {
-        // Show real database message errors directly inside your red alert element box
-        errBox.textContent = `❌ Login Error: ${error.message}`;
-        errBox.style.display = 'block';
-      } else {
-        // Build the correct payload shape that components.js expects to update layouts
-        const userPayload = {
-          id: data.user.id,
-          name: data.user.user_metadata.full_name || email.split('@')[0],
-          email: data.user.email,
-          year: '2nd Year',
-          joined: '2025'
-        };
-
-        // Inject profile into localStorage state
-        localStorage.setItem('cm_user', JSON.stringify(userPayload));
-
-        sucBox.style.display = 'block';
-        
-        // Wait 1.2 seconds so user sees your nice CSS success transition popup animation
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1200);
-      }
+    if (!email || !password) {
+      errBox.textContent = '⚠️ Please fill in all fields.';
+      errBox.style.display = 'block';
+      return;
     }
 
-    // Capture "Enter Key" events anywhere on the window page context for seamless desktop navigation
-    document.addEventListener('keydown', e => { 
-      if(e.key === 'Enter') executeLiveLogin(); 
+    if (!email.includes('@')) {
+      errBox.textContent = '⚠️ Please enter a valid student email address.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    // Ping Supabase using our renamed client variable
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
     });
-  </script>
+
+    if (error) {
+      // If the database returns an error, show it in the red alert box
+      errBox.textContent = `❌ Login Error: ${error.message}`;
+      errBox.style.display = 'block';
+    } else {
+      // Success: create the payload object for components.js
+      const userPayload = {
+        id: data.user.id,
+        name: data.user.user_metadata.full_name || email.split('@')[0],
+        email: data.user.email,
+        year: '2nd Year',
+        joined: '2025'
+      };
+
+      // Store in localStorage
+      localStorage.setItem('cm_user', JSON.stringify(userPayload));
+
+      sucBox.style.display = 'block';
+      
+      // Redirect to marketplace home after a short delay
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1200);
+    }
+  }
+
+  // Allow signing in by pressing the Enter key
+  document.addEventListener('keydown', e => { 
+    if(e.key === 'Enter') executeLiveLogin(); 
+  });
+</script>
 
   <style>
     body{background:linear-gradient(135deg,#1a237e 0%,#1565c0 100%);min-height:100vh;display:flex;flex-direction:column}
