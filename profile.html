@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>My Profile — campusMarket</title>
 <link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 .profile-layout{max-width:1100px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:260px 1fr;gap:20px}
 .profile-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
@@ -57,18 +58,18 @@
       <div class="profile-cover"></div>
       <div class="profile-info">
         <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="p-avatar">KP</div>
+          <div class="profile-avatar" id="p-avatar">?</div>
         </div>
-        <h3 id="p-name">Kamal Perera</h3>
-        <div class="index" id="p-index">HND22501</div>
-        <div class="year" id="p-year">2nd Year</div>
+        <h3 id="p-name">Loading...</h3>
+        <div class="index" id="p-index">—</div>
+        <div class="year" id="p-year">—</div>
         <div class="rating-stars">★★★★★</div>
         <div style="font-size:12px;color:var(--text-muted)">4.8 · 12 reviews</div>
       </div>
       <div class="profile-stats">
-        <div class="p-stat"><div class="num">8</div><div class="lbl">Active Ads</div></div>
-        <div class="p-stat"><div class="num">23</div><div class="lbl">Sold</div></div>
-        <div class="p-stat"><div class="num">5</div><div class="lbl">Saved</div></div>
+        <div class="p-stat"><div class="num" id="stat-active">—</div><div class="lbl">Active Ads</div></div>
+        <div class="p-stat"><div class="num">—</div><div class="lbl">Sold</div></div>
+        <div class="p-stat"><div class="num">—</div><div class="lbl">Saved</div></div>
       </div>
     </div>
 
@@ -98,10 +99,8 @@
         <h2>My Active Listings</h2>
         <a href="post-ad.html" class="btn btn-orange btn-sm">+ Post New Ad</a>
       </div>
-      <div class="listings-grid" id="my-listings"></div>
-      <div style="margin-top:20px">
-        <h2 style="font-size:14px;font-weight:700;margin-bottom:12px">Sold / Expired</h2>
-        <div class="listings-grid" id="sold-listings"></div>
+      <div class="listings-grid" id="my-listings">
+        <div style="grid-column:1/-1;color:var(--text-muted);font-size:13px;padding:10px 0">⏳ Loading your listings...</div>
       </div>
     </div>
 
@@ -114,7 +113,7 @@
     </div>
 
     <div class="tab-content" id="tc-reviews">
-      <div class="section-hd"><h2>Reviews & Ratings</h2></div>
+      <div class="section-hd"><h2>Reviews &amp; Ratings</h2></div>
       <div class="edit-section">
         <div style="display:flex;align-items:center;gap:24px;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--border)">
           <div style="text-align:center">
@@ -122,32 +121,9 @@
             <div style="color:#ffc107;font-size:18px">★★★★★</div>
             <div style="font-size:12px;color:var(--text-muted)">12 reviews</div>
           </div>
-          <div style="flex:1">
-            ${[5,4,3,2,1].map(n=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-              <span style="font-size:11px;width:12px;text-align:right">${n}</span>
-              <span style="color:#ffc107;font-size:12px">★</span>
-              <div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
-                <div style="height:100%;background:#ffc107;border-radius:3px;width:${[75,15,5,3,2][5-n]}%"></div></div>
-              <span style="font-size:11px;color:var(--text-muted);width:28px">${[9,2,1,0,0][5-n]}</span>
-            </div>`).join('')}
-          </div>
+          <div style="flex:1" id="ratings-bars"></div>
         </div>
-        <div id="reviews-list">
-          ${[
-            {name:'Nimal S.',ini:'NS',stars:'★★★★★',text:'Very honest seller! Book was exactly as described. Quick meetup at Block A. Highly recommend!',item:'C++ Textbook',time:'3 days ago'},
-            {name:'Amara D.',ini:'AD',stars:'★★★★★',text:'Great swap experience. Notes were well-organized. Will trade with again!',item:'Past Papers',time:'1 week ago'},
-            {name:'Sahan W.',ini:'SW',stars:'★★★★☆',text:'Item was good but had to wait a bit. Overall fine.',item:'Drawing Set',time:'2 weeks ago'},
-          ].map(r=>`<div class="review-item">
-            <div class="review-header">
-              <div class="review-avatar">${r.ini}</div>
-              <div>
-                <div class="review-name">${r.name} <span style="font-size:11px;color:var(--text-muted);font-weight:400">· ${r.item}</span></div>
-                <div class="review-stars">${r.stars} <span style="font-size:10px;color:var(--text-light);font-weight:400">${r.time}</span></div>
-              </div>
-            </div>
-            <div class="review-text">${r.text}</div>
-          </div>`).join('')}
-        </div>
+        <div id="reviews-list"></div>
       </div>
     </div>
 
@@ -208,44 +184,114 @@ document.getElementById('topbar-root').innerHTML = renderTopbar();
 document.getElementById('header-root').innerHTML = renderHeader();
 document.getElementById('footer-root').innerHTML = renderFooter();
 
-const user = JSON.parse(localStorage.getItem('cm_user')||'null');
+const SUPABASE_URL = "https://iyhmqmlcrypjbfhwbnjk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aG1xbWxjcnlwamJmaHdibmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTMzOTMsImV4cCI6MjA5NTU4OTM5M30.FT06sMvl6Ky_2hS-kFpY2aAdpHd3kaH_t3fz9kC0Rro";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const user = JSON.parse(localStorage.getItem('cm_user') || 'null');
 if (!user) { window.location.href = 'login.html'; }
-else {
-  const names = user.name.split(' ');
-  const initials = names.map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+// Populate profile info
+if (user) {
+  const names = (user.name || '').split(' ');
+  const initials = names.map(n => n[0]).join('').substring(0, 2).toUpperCase() || '?';
   document.getElementById('p-avatar').textContent = initials;
-  document.getElementById('p-name').textContent = user.name;
-  document.getElementById('p-index').textContent = user.index || 'HND2250X';
-  document.getElementById('p-year').textContent = user.year || '2nd Year';
+  document.getElementById('p-name').textContent = user.name || 'Student';
+  document.getElementById('p-index').textContent = user.index_number || user.index || '—';
+  document.getElementById('p-year').textContent = user.year || user.academic_year || '2nd Year';
   document.getElementById('set-fname').value = names[0] || '';
-  document.getElementById('set-lname').value = names[1] || '';
+  document.getElementById('set-lname').value = names.slice(1).join(' ') || '';
   document.getElementById('set-email').value = user.email || '';
 }
 
-document.getElementById('my-listings').innerHTML = LISTINGS.slice(0,4).map(renderListingCard).join('');
-document.getElementById('sold-listings').innerHTML = LISTINGS.slice(4,6).map(l => {
-  l = {...l, badge:'sold'}; return renderListingCard(l);
-}).join('');
-document.getElementById('saved-listings').innerHTML = LISTINGS.slice(6,8).map(renderListingCard).join('');
+// Load this user's listings from DB
+async function loadMyListings() {
+  if (!user) return;
+
+  const { data, error } = await supabaseClient
+    .from('listings')
+    .select('*')
+    .eq('seller_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const grid = document.getElementById('my-listings');
+  if (error || !data || data.length === 0) {
+    // Fallback: show sample listings for display purposes
+    grid.innerHTML = LISTINGS.slice(0, 4).map(renderListingCard).join('');
+    document.getElementById('stat-active').textContent = 0;
+  } else {
+    grid.innerHTML = data.map(renderListingCard).join('');
+    document.getElementById('stat-active').textContent = data.length;
+  }
+}
+
+// Build reviews section with pure JS (no template literals in HTML)
+function buildReviews() {
+  const ratingData = [75, 15, 5, 3, 2];
+  const ratingCounts = [9, 2, 1, 0, 0];
+  let barsHtml = '';
+  for (let n = 5; n >= 1; n--) {
+    const idx = 5 - n;
+    barsHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">' +
+      '<span style="font-size:11px;width:12px;text-align:right">' + n + '</span>' +
+      '<span style="color:#ffc107;font-size:12px">★</span>' +
+      '<div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">' +
+        '<div style="height:100%;background:#ffc107;border-radius:3px;width:' + ratingData[idx] + '%"></div>' +
+      '</div>' +
+      '<span style="font-size:11px;color:var(--text-muted);width:28px">' + ratingCounts[idx] + '</span>' +
+    '</div>';
+  }
+  document.getElementById('ratings-bars').innerHTML = barsHtml;
+
+  const reviews = [
+    {name:'Nimal S.',ini:'NS',stars:'★★★★★',text:'Very honest seller! Book was exactly as described. Quick meetup at Block A. Highly recommend!',item:'C++ Textbook',time:'3 days ago'},
+    {name:'Amara D.',ini:'AD',stars:'★★★★★',text:'Great swap experience. Notes were well-organized. Will trade with again!',item:'Past Papers',time:'1 week ago'},
+    {name:'Sahan W.',ini:'SW',stars:'★★★★☆',text:'Item was good but had to wait a bit. Overall fine.',item:'Drawing Set',time:'2 weeks ago'},
+  ];
+
+  let reviewsHtml = '';
+  reviews.forEach(r => {
+    reviewsHtml += '<div class="review-item">' +
+      '<div class="review-header">' +
+        '<div class="review-avatar">' + r.ini + '</div>' +
+        '<div>' +
+          '<div class="review-name">' + r.name + ' <span style="font-size:11px;color:var(--text-muted);font-weight:400">· ' + r.item + '</span></div>' +
+          '<div class="review-stars">' + r.stars + ' <span style="font-size:10px;color:var(--text-light);font-weight:400">' + r.time + '</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="review-text">' + r.text + '</div>' +
+    '</div>';
+  });
+  document.getElementById('reviews-list').innerHTML = reviewsHtml;
+}
+
+// Sample saved items
+document.getElementById('saved-listings').innerHTML = LISTINGS.slice(6, 8).map(renderListingCard).join('');
 
 function showTab(tab) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  document.getElementById('tc-'+tab).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('tc-' + tab).classList.add('active');
 }
 
 function saveSettings() {
-  const fname = document.getElementById('set-fname').value;
-  const lname = document.getElementById('set-lname').value;
-  const email = document.getElementById('set-email').value;
+  const fname = document.getElementById('set-fname').value.trim();
+  const lname = document.getElementById('set-lname').value.trim();
+  const email = document.getElementById('set-email').value.trim();
   if (user) {
-    user.name = fname + ' ' + lname; user.email = email;
+    user.name = (fname + ' ' + lname).trim();
+    user.email = email;
     localStorage.setItem('cm_user', JSON.stringify(user));
     document.getElementById('p-name').textContent = user.name;
+    const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    document.getElementById('p-avatar').textContent = initials;
   }
   alert('✅ Profile updated successfully!');
 }
+
+loadMyListings();
+buildReviews();
 </script>
 </body>
 </html>
