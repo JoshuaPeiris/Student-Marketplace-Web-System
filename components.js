@@ -15,7 +15,7 @@ const NAV_LINKS = [
 
 function renderTopbar() {
   return `<div class="topbar">
-    <div><a href="#">Safety Tips</a><a href="#">Help</a><a href="contact.html">Contact</a></div>
+    <div><a href="contact.html">Contact</a></div>
   </div>`;
 }
 
