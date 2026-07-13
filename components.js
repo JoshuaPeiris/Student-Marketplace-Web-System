@@ -102,7 +102,7 @@ const CAT_EMOJI = {
 // Normalise a raw DB listing row so renderListingCard can handle it
 function normaliseListing(l) {
   // Already a local sample listing — pass through
-  if (l.emoji) return l;
+  if (l.emoji) return { image_urls: null, ...l };
 
   const catKey = (l.category || 'other').toLowerCase().replace(/[^a-z]/g, '');
   const typeMap = { sell: 'new', swap: 'swap', free: 'free', wanted: 'wanted' };
@@ -126,7 +126,8 @@ function normaliseListing(l) {
     time: postedAt,
     seller: l.seller_name || 'Student',
     year: l.seller_year || '',
-    desc: l.description || ''
+    desc: l.description || '',
+    image_urls: Array.isArray(l.image_urls) ? l.image_urls : []
   };
 }
 
@@ -143,8 +144,12 @@ function timeAgo(dateStr) {
 
 function renderListingCard(rawListing) {
   const l = normaliseListing(rawListing);
+  const hasImg = l.image_urls && l.image_urls.length > 0;
+  const thumbInner = hasImg
+    ? `<img src="${l.image_urls[0]}" alt="${l.title}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`
+    : `<span>${l.emoji}</span>`;
   return `<div class="listing-card" onclick="window.location='listing-detail.html?id=${l.id}'">
-    <div class="listing-thumb"><span>${l.emoji}</span>
+    <div class="listing-thumb">${thumbInner}
       <button class="listing-fav" onclick="event.stopPropagation();toggleFav(this)">♡</button>
     </div>
     <div class="listing-body">
@@ -176,3 +181,4 @@ const LISTINGS = [
   { id:11, title:'Discrete Mathematics (Rosen)', price:'Rs. 750', cat:'Textbooks', badge:'new', zone:'Block A', emoji:'📕', time:'3 days ago', seller:'Nimasha C.', year:'1st Year', desc:'Used one semester, very good condition.' },
   { id:12, title:'Java: Complete Reference — Schildt', price:'Rs. 950', cat:'Textbooks', badge:'urgent', zone:'Canteen', emoji:'📘', time:'4 days ago', seller:'Kasun E.', year:'2nd Year', desc:'Urgent sale, leaving hostel.' },
 ];
+
