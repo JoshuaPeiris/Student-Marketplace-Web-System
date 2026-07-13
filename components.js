@@ -99,6 +99,38 @@ const CAT_EMOJI = {
   lostfound: '🔍', free: '🎁', other: '📦'
 };
 
+// A listing is auto-counted as a completed "trade" once it's been up this many days.
+// There's no manual "mark as sold" step — this keeps the stat in sync automatically.
+const TRADE_DONE_DAYS = 14;
+
+function isTradeDone(listing) {
+  if (!listing || !listing.created_at) return false;
+  const ageMs = Date.now() - new Date(listing.created_at).getTime();
+  return ageMs > TRADE_DONE_DAYS * 24 * 60 * 60 * 1000;
+}
+
+// Counts trades done within an already-fetched array of listing rows,
+// optionally scoped to one seller (by seller_id, falling back to seller_name).
+function countTradesDoneLocal(listings, sellerId, sellerName) {
+  return listings.filter(l => {
+    if (sellerId && l.seller_id !== sellerId) return false;
+    if (!sellerId && sellerName && l.seller_name !== sellerName) return false;
+    return isTradeDone(l);
+  }).length;
+}
+
+// Queries Supabase directly for a trades-done count (used when the full listing
+// set for that scope hasn't already been fetched on the page).
+async function countTradesDoneRemote(client, sellerId, sellerName) {
+  const cutoff = new Date(Date.now() - TRADE_DONE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  let query = client.from('listings').select('id', { count: 'exact', head: true }).lt('created_at', cutoff);
+  if (sellerId) query = query.eq('seller_id', sellerId);
+  else if (sellerName) query = query.eq('seller_name', sellerName);
+  const { count, error } = await query;
+  if (error) { console.error('countTradesDoneRemote error:', error); return 0; }
+  return count || 0;
+}
+
 // Normalise a raw DB listing row so renderListingCard can handle it
 function normaliseListing(l) {
   // Already a local sample listing — pass through
@@ -181,4 +213,3 @@ const LISTINGS = [
   { id:11, title:'Discrete Mathematics (Rosen)', price:'Rs. 750', cat:'Textbooks', badge:'new', zone:'Block A', emoji:'📕', time:'3 days ago', seller:'Nimasha C.', year:'1st Year', desc:'Used one semester, very good condition.' },
   { id:12, title:'Java: Complete Reference — Schildt', price:'Rs. 950', cat:'Textbooks', badge:'urgent', zone:'Canteen', emoji:'📘', time:'4 days ago', seller:'Kasun E.', year:'2nd Year', desc:'Urgent sale, leaving hostel.' },
 ];
-
