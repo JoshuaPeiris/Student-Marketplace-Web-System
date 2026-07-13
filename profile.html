@@ -69,7 +69,7 @@
       </div>
       <div class="profile-stats">
         <div class="p-stat"><div class="num" id="stat-active">—</div><div class="lbl">Active Ads</div></div>
-        <div class="p-stat"><div class="num">—</div><div class="lbl">Sold</div></div>
+        <div class="p-stat"><div class="num" id="stat-sold">—</div><div class="lbl">Sold</div></div>
         <div class="p-stat"><div class="num">—</div><div class="lbl">Saved</div></div>
       </div>
     </div>
@@ -220,9 +220,12 @@ async function loadMyListings() {
     // Fallback: show sample listings for display purposes
     grid.innerHTML = LISTINGS.slice(0, 4).map(renderListingCard).join('');
     document.getElementById('stat-active').textContent = 0;
+    document.getElementById('stat-sold').textContent = 0;
   } else {
     grid.innerHTML = data.map(renderListingCard).join('');
-    document.getElementById('stat-active').textContent = data.length;
+    const soldCount = countTradesDoneLocal(data, user.id);
+    document.getElementById('stat-active').textContent = data.length - soldCount;
+    document.getElementById('stat-sold').textContent = soldCount;
   }
 }
 
