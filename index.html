@@ -58,7 +58,7 @@
       <div class="hero-stats">
         <div class="stat-item"><div class="stat-num" id="stat-listings">—</div><div class="stat-lbl">Active Listings</div></div>
         <div class="stat-item"><div class="stat-num">89</div><div class="stat-lbl">Students Online</div></div>
-        <div class="stat-item"><div class="stat-num">1.2k</div><div class="stat-lbl">Trades Done</div></div>
+        <div class="stat-item"><div class="stat-num" id="stat-trades">—</div><div class="stat-lbl">Trades Done</div></div>
         <div class="stat-item"><div class="stat-num">100%</div><div class="stat-lbl">Campus-Only</div></div>
       </div>
     </div>
@@ -199,6 +199,7 @@ async function loadHomeListings() {
 
   // Update hero stat
   document.getElementById('stat-listings').textContent = allListings.length;
+  document.getElementById('stat-trades').textContent = countTradesDoneLocal(allListings);
 
   // Update category counts in quick-cats grid
   const catKeys = ['textbooks','notes','electronics','stationery','uniforms','projects','services','food','lostfound','free'];
