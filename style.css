@@ -525,3 +525,93 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .text-muted { color: var(--text-muted); }
 .fw-bold { font-weight: 700; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ===================================================
+   MOBILE / PHONE BROWSER COMPATIBILITY
+   Breakpoints: 700px (tablet/small-laptop) and 480px (phones)
+   =================================================== */
+
+/* Prevent iOS Safari from auto-zooming into inputs (needs >=16px font) */
+@media (max-width: 700px) {
+  input, select, textarea, .form-control { font-size: 16px !important; }
+}
+
+/* ---- Header & search: stack instead of squeezing into one row ---- */
+@media (max-width: 700px) {
+  .header { padding: 10px 14px 0; }
+  .header-top { flex-wrap: wrap; gap: 10px; }
+  .logo { font-size: 18px; }
+  .search-wrap { order: 3; max-width: 100%; width: 100%; flex-basis: 100%; }
+  .header-actions { gap: 6px; margin-left: auto; }
+  .header-actions a { font-size: 12px; padding: 6px 8px; }
+  .btn-post { padding: 6px 12px !important; font-size: 12px !important; }
+  .nav-bar a { font-size: 11.5px; padding: 8px 10px; }
+}
+
+/* ---- Hero section ---- */
+@media (max-width: 700px) {
+  .hero-stats { flex-wrap: wrap; gap: 14px 20px; }
+  .hero-ctas { width: 100%; }
+  .hero-ctas .btn { flex: 1; justify-content: center; }
+}
+@media (max-width: 480px) {
+  .hero-stats { justify-content: space-between; }
+  .stat-item { flex: 1 1 40%; }
+}
+
+/* ---- Generic two-column form rows & grids used across pages ---- */
+@media (max-width: 600px) {
+  .row2 { grid-template-columns: 1fr; }
+  .price-type-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
+}
+@media (max-width: 420px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+}
+
+/* ---- Post-ad / profile / listing-detail side-by-side layouts ---- */
+@media (max-width: 700px) {
+  .post-layout, .profile-layout { grid-template-columns: 1fr !important; }
+  .step-indicator { flex-wrap: wrap; }
+  .nav-btns { flex-wrap: wrap; }
+  .nav-btns .btn { flex: 1; min-width: 120px; justify-content: center; }
+}
+
+/* ---- Stat rows (seller card, profile card) stay 3-up but shrink gracefully ---- */
+@media (max-width: 480px) {
+  .seller-stats, .profile-stats { gap: 4px; }
+  .s-stat .num, .p-stat .num { font-size: 15px; }
+  .s-stat .lbl, .p-stat .lbl { font-size: 10px; }
+}
+
+/* ---- Listing grids: allow smaller cards so 2 columns fit on narrow phones ---- */
+@media (max-width: 480px) {
+  .listings-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)) !important; gap: 8px !important; }
+  .related-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important; }
+  .quick-cats { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)) !important; }
+}
+
+/* ---- Listing detail gallery/thumbs shrink so they don't dominate the screen ---- */
+@media (max-width: 480px) {
+  .img-gallery { height: 220px; font-size: 70px; }
+  .thumb { width: 52px; height: 52px; }
+}
+
+/* ---- Tables (e.g. ad detail table) scroll horizontally instead of squashing ---- */
+@media (max-width: 480px) {
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+/* ---- Messages page: list-only view already applied at 700px; tighten padding ---- */
+@media (max-width: 480px) {
+  .msg-layout { height: calc(100vh - 140px); }
+  .convo-item { padding: 10px 12px; }
+}
+
+/* ---- General spacing tightening on small phones ---- */
+@media (max-width: 480px) {
+  .container { padding: 0 12px; }
+  .page-title-bar { padding: 12px 14px; }
+  .section-hd h2 { font-size: 14px; }
+}
