@@ -332,19 +332,55 @@ function updatePreview() {
   document.getElementById('prev-cat').textContent = cat + ' · ' + zone;
 }
 
+// Holds the actual File objects the user picked, so we can upload them on submit
+let selectedFiles = [];
+
 function previewImgs(input) {
+  selectedFiles = Array.from(input.files).slice(0, 5);
+  renderImgPreview();
+}
+
+function renderImgPreview() {
   const prev = document.getElementById('img-preview');
   prev.innerHTML = '';
-  Array.from(input.files).slice(0, 5).forEach(f => {
+  selectedFiles.forEach((f, idx) => {
     const div = document.createElement('div');
     div.className = 'prev-img';
     const img = document.createElement('img');
     img.src = URL.createObjectURL(f);
     img.style = 'width:100%;height:100%;object-fit:cover;border-radius:7px';
     const del = document.createElement('span');
-    del.className = 'del'; del.textContent = '✕'; del.onclick = () => div.remove();
+    del.className = 'del'; del.textContent = '✕';
+    del.onclick = () => { selectedFiles.splice(idx, 1); renderImgPreview(); };
     div.appendChild(img); div.appendChild(del); prev.appendChild(div);
   });
+}
+
+// Uploads all selectedFiles to Supabase Storage and returns an array of public URLs
+async function uploadListingImages() {
+  const urls = [];
+  for (const file of selectedFiles) {
+    const ext = file.name.split('.').pop();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from('listing-images')
+      .upload(path, file);
+
+    if (uploadError) {
+      console.error('Image upload error:', uploadError);
+      continue; // skip this file but keep going with the rest
+    }
+
+    const { data: publicUrlData } = supabaseClient
+      .storage
+      .from('listing-images')
+      .getPublicUrl(path);
+
+    if (publicUrlData?.publicUrl) urls.push(publicUrlData.publicUrl);
+  }
+  return urls;
 }
 
 async function submitAd() {
@@ -362,6 +398,11 @@ async function submitAd() {
 
   const submitBtn = document.getElementById('submit-btn');
   submitBtn.disabled = true;
+  submitBtn.textContent = '📤 Uploading photos...';
+
+  // Upload any selected photos to Supabase Storage first
+  const image_urls = selectedFiles.length ? await uploadListingImages() : [];
+
   submitBtn.textContent = '⏳ Posting...';
 
   // Build the row that matches your Supabase listings table schema
@@ -377,6 +418,7 @@ async function submitAd() {
     seller_phone: document.getElementById('phone').value.trim(),
     seller_year:  document.getElementById('seller-year').value,
     seller_id:    user ? user.id : null,
+    image_urls:   image_urls,
   };
 
   const { data, error } = await supabaseClient.from('listings').insert([adData]);
@@ -394,3 +436,4 @@ async function submitAd() {
 </script>
 </body>
 </html>
+
