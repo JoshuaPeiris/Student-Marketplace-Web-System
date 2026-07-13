@@ -92,7 +92,7 @@
       </div>
       <div class="seller-stats">
         <div class="s-stat"><div class="num" id="seller-listings">—</div><div class="lbl">Listings</div></div>
-        <div class="s-stat"><div class="num">—</div><div class="lbl">Sold</div></div>
+        <div class="s-stat"><div class="num" id="seller-sold">—</div><div class="lbl">Sold</div></div>
         <div class="s-stat"><div class="num">⭐ —</div><div class="lbl">Rating</div></div>
       </div>
       <div class="contact-btns">
@@ -212,8 +212,24 @@ function renderDetail(l) {
   document.getElementById('seller-name').textContent = sellerName;
   document.getElementById('seller-sub').textContent = (l.year || currentListing?.seller_year || '—') + ' · ' + (l.zone || '—');
 
+  loadSellerStats(currentListing);
+
   // Related listings (same category, try DB listings first)
   loadRelated(l);
+}
+
+async function loadSellerStats(rawListing) {
+  const sellerId = rawListing?.seller_id;
+  const sellerName = rawListing?.seller_name;
+  if (!sellerId && !sellerName) return; // sample/fallback listing, no real seller to query
+
+  let query = supabaseClient.from('listings').select('id, created_at');
+  query = sellerId ? query.eq('seller_id', sellerId) : query.eq('seller_name', sellerName);
+  const { data, error } = await query;
+
+  if (error || !data) return;
+  document.getElementById('seller-listings').textContent = data.length;
+  document.getElementById('seller-sold').textContent = countTradesDoneLocal(data, sellerId, sellerName);
 }
 
 function renderGallery(l) {
