@@ -173,7 +173,7 @@ async function loadListing() {
 function renderDetail(l) {
   document.title = l.title + ' — campusMarket';
   document.getElementById('bc-title').textContent = l.title.substring(0, 40) + (l.title.length > 40 ? '...' : '');
-  document.getElementById('main-img').textContent = l.emoji;
+  renderGallery(l);
   document.getElementById('det-title').textContent = l.title;
 
   // Price display
@@ -212,14 +212,36 @@ function renderDetail(l) {
   document.getElementById('seller-name').textContent = sellerName;
   document.getElementById('seller-sub').textContent = (l.year || currentListing?.seller_year || '—') + ' · ' + (l.zone || '—');
 
-  // Gallery thumbs
-  document.getElementById('gallery-thumbs').innerHTML = `
-    <div class="thumb active">${l.emoji}</div>
-    <div class="thumb">📷</div>
-    <div class="thumb">📷</div>`;
-
   // Related listings (same category, try DB listings first)
   loadRelated(l);
+}
+
+function renderGallery(l) {
+  const mainImg = document.getElementById('main-img');
+  const thumbs = document.getElementById('gallery-thumbs');
+  const images = l.image_urls || [];
+
+  function showImage(idx) {
+    if (images.length > 0) {
+      mainImg.innerHTML = `<img src="${images[idx]}" alt="${l.title}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+    } else {
+      mainImg.textContent = l.emoji;
+    }
+    thumbs.querySelectorAll('.thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+  }
+
+  if (images.length > 0) {
+    thumbs.innerHTML = images.map((url, i) =>
+      `<div class="thumb${i === 0 ? ' active' : ''}" onclick="showListingImage(${i})">
+         <img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+       </div>`
+    ).join('');
+  } else {
+    thumbs.innerHTML = `<div class="thumb active">${l.emoji}</div>`;
+  }
+
+  window.showListingImage = showImage; // exposed for the inline onclick above
+  showImage(0);
 }
 
 async function loadRelated(l) {
